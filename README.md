@@ -1,5 +1,19 @@
 # elements
 
+> **Read-only mirror** — published from [`https://github.com/ray-language/ray-elements/tree/main/elements`](https://github.com/ray-language/ray-elements/tree/main/elements); development and pull requests go there.
+>
+> **Install** — `ray add elements` in your project (the official index is the default), or by
+> hand in `ray.toml`:
+>
+> ```toml
+> [dependencies]
+> elements = "^0.3.0"
+> ```
+>
+> Without an index, the direct git dependency:
+> `elements = "git+https://github.com/ray-language/elements@v0.3.0"`.
+
+
 [ray-elements](https://github.com/ray-language/ray-elements) for raylang apps: the design
 system's web components, which the app's pages import by their npm name
 (`@raylang/elements`) with no npm and no copied files, and the native bridge
@@ -7,10 +21,16 @@ that gives them the system's dialogs, menus and window in a `std/ui` window.
 Needs raylang 1.27.44 or later.
 
 This repository is the `elements/` directory of
-[ray-language/ray-elements](https://github.com/ray-language/ray-elements), split out with
-its history on every release: open issues and pull requests there.
+[ray-language/ray-elements](https://github.com/ray-language/ray-elements), published from
+it on every release (`ray registry mirror`): open issues and pull requests there.
 
 ## Install
+
+```sh
+ray add elements
+```
+
+or, pinning the tag without the index:
 
 ```toml
 [dependencies]
