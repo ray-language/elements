@@ -7,18 +7,18 @@
 >
 > ```toml
 > [dependencies]
-> elements = "^0.4.1"
+> elements = "^0.5.0"
 > ```
 >
 > Without an index, the direct git dependency:
-> `elements = "git+https://github.com/ray-language/elements@v0.4.1"`.
+> `elements = "git+https://github.com/ray-language/elements@v0.5.0"`.
 
 
 [ray-elements](https://github.com/ray-language/ray-elements) for raylang apps: the design
 system's web components, which the app's pages import by their npm name
 (`@raylang/elements`) with no npm and no copied files, and the native bridge
 that gives them the system's dialogs, menus and window in a `std/ui` window.
-Needs raylang 1.27.44 or later.
+Needs raylang 1.27.48 or later.
 
 This repository is the `elements/` directory of
 [ray-language/ray-elements](https://github.com/ray-language/ray-elements), published from
@@ -34,7 +34,7 @@ or, pinning the tag without the index:
 
 ```toml
 [dependencies]
-elements = "git+https://github.com/ray-language/elements@v0.4.1"
+elements = "git+https://github.com/ray-language/elements@v0.5.0"
 ```
 
 ## Use
