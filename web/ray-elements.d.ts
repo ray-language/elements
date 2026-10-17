@@ -957,6 +957,8 @@ export declare class RayRadioGroup extends FormControl {
 export declare class RayRadio extends RayElement {
   /** Value given to the group when chosen. */
   value: string | undefined;
+  /** Whether this radio is the group's value; setting it sets the group's value. The checked attribute marks the group's initial value (when the group has no value attribute). */
+  checked: boolean | undefined;
   /** Label text (or the content). */
   label: string | undefined;
   /** Help text under the label. */
@@ -969,8 +971,6 @@ export declare class RayRadio extends RayElement {
   size: "xs" | "sm" | "md" | "lg" | "xl" | undefined;
   /** Overrides the group variant. */
   variant: "filled" | "outline" | undefined;
-  /** Whether this radio is the group's value. */
-  readonly checked: boolean;
 }
 
 // --- Search (search)
@@ -1923,7 +1923,7 @@ export interface RayCodeEventMap extends HTMLElementEventMap {
 // --- Icon (icon)
 /** <ray-icon> setIcons({ name: '<svg…>' }) replaces or adds icons (SVG markup or an SVGElement, drawn with currentColor); iconNames() lists them. Sizes follow the font unless size; --ray-icon-size and --ray-icon-stroke tune the whole system. */
 export declare class RayIcon extends RayElement {
-  /** Registered icon name (iconNames()). */
+  /** Registered icon name (iconNames()); "none" draws nothing, a blank that keeps the alignment (a menu item without its check). */
   name: string | undefined;
   /** xs…xl or any CSS length. Default: 1em. */
   size: string | undefined;
