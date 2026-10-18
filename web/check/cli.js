@@ -8,7 +8,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { checkMarkup, customValues, RULES } from "./check.js";
-import { iconNames } from "../core/icons.js";
+import { iconNames, iconAliases } from "../core/icons.js";
 
 const EXTENSIONS = new Set(["html", "htm", "vue", "svelte", "astro", "jsx", "tsx"]);
 // Read for what an app adds: setIcons({ … }) and its own variants in CSS.
@@ -88,10 +88,14 @@ function main(argv) {
   const files = [];
   const scripts = [];
   for (const p of paths.length > 0 ? paths : ["."]) collect(p, files, scripts, true);
-  const icons = new Set([...iconNames(), ...extraIcons]);
+  const icons = new Set([...iconNames(), ...Object.keys(iconAliases()), ...extraIcons]);
+  const filledIcons = new Set(iconNames({ filled: true }));
   for (const f of scripts) {
     const src = readFileSync(f, "utf8");
-    for (const name of registeredIcons(src)) icons.add(name);
+    for (const name of registeredIcons(src)) {
+      if (name.endsWith(":filled")) filledIcons.add(name.slice(0, -":filled".length));
+      else icons.add(name);
+    }
     for (const [attr, values] of Object.entries(customValues(src))) values.forEach((v) => allowValue(attr, v));
   }
 
@@ -99,7 +103,7 @@ function main(argv) {
   for (const f of files) {
     const source = readFileSync(f, "utf8");
     const file = relative(process.cwd(), f) || f;
-    for (const d of checkMarkup(source, { manifest: manifests, icons: [...icons], allow, file })) {
+    for (const d of checkMarkup(source, { manifest: manifests, icons: [...icons], filledIcons: [...filledIcons], allow, file })) {
       if (!ignore.has(d.rule)) diagnostics.push(d);
     }
   }
@@ -128,11 +132,11 @@ function collect(path, files, scripts, explicit) {
   if (SCRIPTS.has(ext)) scripts.push(path);
 }
 
-// The keys of setIcons({ inbox: '<svg…>', "file-text": … }) calls.
+// The keys of setIcons({ inbox: '<svg…>', "file-text": …, "star:filled": …, "ui.remove": … }) calls.
 function registeredIcons(src) {
   const out = [];
   for (const call of src.matchAll(/setIcons\(\s*\{([\s\S]*?)\}\s*\)/g)) {
-    for (const key of call[1].matchAll(/(?:^|[,{\s])(["']?)([A-Za-z][\w-]*)\1\s*:/g)) out.push(key[2]);
+    for (const key of call[1].matchAll(/(?:^|[,{\s])(?:(["'])([A-Za-z][\w.-]*(?::filled)?)\1|([A-Za-z][\w-]*))\s*:/g)) out.push(key[2] ?? key[3]);
   }
   return out;
 }

@@ -54,12 +54,14 @@ export declare function getCustomPrimary(el?: Element): string | null;
 
 // --- icons -------------------------------------------------------------------
 
-/** Replaces or adds icons (SVG markup or an SVGElement); repaints every component. */
+/** Replaces or adds icons (SVG markup or an SVGElement); repaints every component. "<name>:filled" is an icon's filled version. */
 export declare function setIcons(icons: Record<string, string | SVGElement>): void;
-/** The SVG markup of a registered icon ("" if unknown). */
-export declare function getIcon(name: string): string;
-/** The registered icon names. */
-export declare function iconNames(): string[];
+/** The SVG markup of a registered icon ("" if unknown); with filled, its filled version (the outline one without it). */
+export declare function getIcon(name: string, options?: { filled?: boolean }): string;
+/** The registered icon names; with filled, those that have a filled version. */
+export declare function iconNames(options?: { filled?: boolean }): string[];
+/** The roles the components draw ("ui.close", "ui.remove", "ui.expand"…) and the glyph each one uses unless the app registers the role. */
+export declare function iconAliases(): Record<string, string>;
 
 // --- base classes ------------------------------------------------------------
 
@@ -1216,8 +1218,8 @@ export declare class RayBottomNavItem extends RayElement {
   value: string | undefined;
   /** The label. */
   label: string | undefined;
-  /** An icon of the registry (or put one in the icon slot). */
-  icon: string | undefined;
+  /** An icon of the registry, drawn filled on the current item when it has a filled version (or put one in the icon slot: yours, as it is). */
+  icon: IconName | undefined;
   /** Makes it a link. */
   href: string | undefined;
   /** A count or a short text on the icon. */
@@ -1832,7 +1834,7 @@ export declare class RayBlockquote extends RayElement {
   /** light: tinted background; outline: border and edge only; filled: solid color (a pull quote). */
   variant: "light" | "outline" | "filled";
   /** Registry icon of the mark, or none. The icon slot replaces it. */
-  icon: string;
+  icon: IconName;
   /** Text size (lg for a pull quote). */
   size: "sm" | "md" | "lg";
   /** Inner spacing: xs…xl (the spacing scale), px as a number, or a CSS length. Default: md. */
@@ -1928,10 +1930,14 @@ export interface RayCodeEventMap extends HTMLElementEventMap {
 }
 
 // --- Icon (icon)
-/** <ray-icon> setIcons({ name: '<svg…>' }) replaces or adds icons (SVG markup or an SVGElement, drawn with currentColor); iconNames() lists them. Sizes follow the font unless size; --ray-icon-size and --ray-icon-stroke tune the whole system. */
+/** An icon name: one of the default set, or any name an app registers with setIcons(). */
+export type IconName = "close" | "check" | "minus" | "plus" | "chevron-down" | "chevron-up" | "chevron-right" | "chevron-left" | "chevrons-left" | "chevrons-right" | "search" | "arrow-up-right" | "arrow-down-right" | "sun" | "moon" | "monitor" | "user" | "info" | "circle-check" | "alert-triangle" | "circle-x" | "menu" | "more-horizontal" | "file" | "folder" | "pause" | "play" | "terminal" | "calendar" | "image" | "download" | "eye" | "eye-off" | "bell" | "copy" | "quote" | "pipette" | "star" | "upload" | "paperclip" | "panel-left" | "settings" | "home" | "arrow-left" | "message-circle" | "none" | (string & {});
+/** <ray-icon> setIcons({ name: '<svg…>' }) replaces or adds icons (SVG markup or an SVGElement, drawn with currentColor); iconNames() lists them. An icon may have a filled version for a state (filled; "<name>:filled" in setIcons; iconNames({ filled: true }) lists them). The components draw roles ("ui.close", "ui.remove", "ui.expand"…; iconAliases()), each its glyph until the app registers the role: setIcons({ "ui.remove": … }) changes only the chips' ×. Sizes follow the font unless size; --ray-icon-size and --ray-icon-stroke tune the whole system. */
 export declare class RayIcon extends RayElement {
   /** Registered icon name (iconNames()); "none" draws nothing, a blank that keeps the alignment (a menu item without its check). */
-  name: string | undefined;
+  name: IconName | undefined;
+  /** The filled version, for a state (active, selected, favorite, unread); the outline icon when there is none. Built in: user, info, circle-check, alert-triangle, circle-x, folder, bell, star, settings, home, message-circle. */
+  filled: boolean | undefined;
   /** xs…xl or any CSS length. Default: 1em. */
   size: string | undefined;
   /** Accessible name; without it the icon is decorative (hidden from screen readers). */
@@ -2077,7 +2083,7 @@ export declare class RayTimelineItem extends RayElement {
   /** When ("2 h ago", a date). */
   time: string | undefined;
   /** An icon of the registry in the bullet. */
-  icon: string | undefined;
+  icon: IconName | undefined;
   /** Its own color (a failed step in red). */
   color: string | undefined;
   /** The line to the next item (dashed: not happened yet). */
@@ -2096,7 +2102,7 @@ export declare class RayAlert extends RayElement {
   /** Corner radius. */
   radius: "xs" | "sm" | "md" | "lg" | "xl" | undefined;
   /** A registered icon name, or none. */
-  icon: string | undefined;
+  icon: IconName | undefined;
   /** A close button; closing hides the alert (cancel ray-close to keep it). */
   closable: boolean | undefined;
   /** Accessible name of the close button. */
@@ -2142,7 +2148,7 @@ export declare class RayNotification extends RayElement {
   /** Status color: tints the status icon (and a slotted icon's circle). */
   color: string | undefined;
   /** Status icon from the registry (default: from the color); "none" for no icon. */
-  icon: string | undefined;
+  icon: IconName | undefined;
   /** Shows a spinner (notify() does not auto-close it). */
   loading: boolean | undefined;
   /** No close button. */
@@ -2269,8 +2275,12 @@ export declare class RayStepDots extends RayElement {
   size: "xs" | "sm" | "md" | "lg" | "xl";
   /** Where the row sits in its width. */
   align: "start" | "center" | "end";
-  /** What a step is called: "Round" is announced "Round 4 of 12" and names the element. Default: Step (named Steps). */
+  /** What a step is called: "Round" is announced "Round 4 of 12" and names the element. Default: Step (named Steps). In another language, use value-text. */
   label: string | undefined;
+  /** The announced text, {step} (the current one, from 1) and {count} replaced, numbers in the page's language: value-text="Asalto {step} de {count}". Default: "<label> {step} of {count}". */
+  valueText: string | undefined;
+  /** The announced text once every step is done (value = count), with {count}. Default: value-text, else "{count} of {count}, done". */
+  doneText: string | undefined;
 }
 
 // --- App bar (app-bar)

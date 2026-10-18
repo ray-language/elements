@@ -5,7 +5,7 @@
 import { getIcon, onIconsChange } from "./icons.js";
 import { parseColor, shades, contrastRatio, toHex, toOklch } from "./color.js";
 
-export { setIcons, getIcon, iconNames } from "./icons.js";
+export { setIcons, getIcon, iconNames, iconAliases } from "./icons.js";
 
 export const PREFIX = "ray";
 
@@ -313,12 +313,13 @@ export class RayElement extends HTMLElement {
    * Protected. Fills every [data-ray-icon="name"] under `root` (default: the
    * shadow root) with that icon of the registry (setIcons). Components call
    * it for markup they create after the template. An empty name or "none"
-   * (the value components use to hide an icon) leaves the slot empty.
+   * (the value components use to hide an icon) leaves the slot empty;
+   * data-ray-icon-filled asks for the filled version (the outline without one).
    */
   paintIcons(root = this.shadowRoot) {
     for (const slot of root.querySelectorAll("[data-ray-icon]")) {
       const name = slot.getAttribute("data-ray-icon");
-      slot.innerHTML = name && name !== "none" ? getIcon(name) : "";
+      slot.innerHTML = name && name !== "none" ? getIcon(name, { filled: slot.hasAttribute("data-ray-icon-filled") }) : "";
     }
   }
 }

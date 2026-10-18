@@ -20,6 +20,7 @@ export const RULES = {
   "unknown-event": "a ray-* event the element does not fire",
   "unknown-icon": "an icon name that is not registered",
   "missing-label": "an icon-only button without its accessible name",
+  "no-filled-icon": "filled on an icon that has no filled version (the outline one is drawn)",
   "literal-color": "a literal color in CSS instead of a token",
 };
 
@@ -83,7 +84,9 @@ function attribute(a) {
   const literals = parts.filter((s) => /^"[^"]*"$/.test(s)).map((s) => s.slice(1, -1));
   const others = parts.filter((s) => !/^"[^"]*"$/.test(s) && s !== "undefined" && s !== "null");
   const length = others.length === 1 && others[0] === "(string & {})";
-  return { name: a.name, boolean: text === "boolean", values: literals.length > 0 && (others.length === 0 || length) ? literals : null, length };
+  // IconName (ray-icon's name, the icon of an alert, a nav item…): checked against the icons.
+  const icon = others.includes("IconName");
+  return { name: a.name, boolean: text === "boolean", values: literals.length > 0 && (others.length === 0 || length) ? literals : null, length, icon };
 }
 
 const LENGTH = /^(?:-?(?:\d+\.?\d*|\.\d+)(?:px|r?em|ex|ch|lh|vw|vh|vmin|vmax|dvh|svh|lvh|cm|mm|in|pt|pc|q|%)|0|(?:calc|min|max|clamp|var)\(.*\))$/i;
@@ -99,14 +102,16 @@ export function languageOf(file) {
 /**
  * Checks one file's markup.
  * @param {string} source
- * @param {{ manifest: object | object[], icons?: string[], allow?: Record<string, string[]>, file?: string, lang?: "html" | "vue" | "jsx" }} options
+ * @param {{ manifest: object | object[], icons?: string[], filledIcons?: string[], allow?: Record<string, string[]>, file?: string, lang?: "html" | "vue" | "jsx" }} options
+ *   filledIcons: the names with a filled version (iconNames({ filled: true }))
  *   allow: more values of an attribute, for every element (an app's own variant: { variant: ["brand"] })
  * @returns {Diagnostic[]}
  */
-export function checkMarkup(source, { manifest, icons, allow = {}, file = "<input>", lang } = {}) {
+export function checkMarkup(source, { manifest, icons, filledIcons, allow = {}, file = "<input>", lang } = {}) {
   const index = indexManifest(manifest);
   const language = lang ?? languageOf(file);
   const iconSet = icons ? new Set(icons) : null;
+  const filledSet = filledIcons ? new Set(filledIcons) : null;
   const lines = lineStarts(source);
   const out = [];
   const report = (pos, severity, rule, message) => {
@@ -137,6 +142,15 @@ export function checkMarkup(source, { manifest, icons, allow = {}, file = "<inpu
     if (el?.tag === "ray-icon-button") {
       const named = tok.attrs.some((a) => ["label", "aria-label", "aria-labelledby"].includes(normalize(a.name, language).name));
       if (!named) report(tok.pos, "error", "missing-label", `<${tok.name}> needs a label: it is the button's accessible name (and its tooltip)`);
+    }
+    if (el?.tag === "ray-icon" && filledSet) {
+      const attr = (n) => tok.attrs.find((a) => normalize(a.name, language).name === n);
+      const filled = attr("filled");
+      const name = attr("name");
+      // Bound or not: an icon that is ever filled needs the filled version.
+      if (filled && name && name.value && !name.dynamic && !normalize(name.name, language).bound && name.value !== "none" && !filledSet.has(name.value)) {
+        report(filled.pos, "warning", "no-filled-icon", `"${name.value}" has no filled version: the outline icon is drawn (add one with setIcons({ "${name.value}:filled": … }))`);
+      }
     }
     if (!tok.selfClosing && !(language !== "jsx" && VOID.has(tok.name.toLowerCase()))) {
       stack.push({ name: tok.name, el });
@@ -231,7 +245,7 @@ function attributeChecks(a, tok, el, parent, language, icons, allow, report) {
     report(a.pos, "error", "invalid-value", `${name}="${a.value}" is not valid on <${tok.name}>: one of ${attr.values.map((v) => `"${v}"`).join(", ")}${or}`);
   }
   // "none" (or nothing) draws no icon: a blank that keeps the alignment.
-  if (el.tag === "ray-icon" && name === "name" && icons && a.value !== "" && a.value !== "none" && !icons.has(a.value)) {
+  if (attr.icon && icons && a.value !== "" && a.value !== "none" && !icons.has(a.value)) {
     report(a.pos, "warning", "unknown-icon", `no icon named "${a.value}"${hint(a.value, [...icons], "icons")} (register it with setIcons)`);
   }
 }

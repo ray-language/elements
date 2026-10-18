@@ -9141,9 +9141,9 @@
             {
               "name": "icon",
               "type": {
-                "text": "string"
+                "text": "IconName"
               },
-              "description": "An icon of the registry (or put one in the icon slot).",
+              "description": "An icon of the registry, drawn filled on the current item when it has a filled version (or put one in the icon slot: yours, as it is).",
               "fieldName": "icon"
             },
             {
@@ -9220,9 +9220,9 @@
               "kind": "field",
               "name": "icon",
               "type": {
-                "text": "string"
+                "text": "IconName"
               },
-              "description": "An icon of the registry (or put one in the icon slot).",
+              "description": "An icon of the registry, drawn filled on the current item when it has a filled version (or put one in the icon slot: yours, as it is).",
               "attribute": "icon",
               "reflects": false
             },
@@ -13997,7 +13997,7 @@
             {
               "name": "icon",
               "type": {
-                "text": "string"
+                "text": "IconName"
               },
               "description": "Registry icon of the mark, or none. The icon slot replaces it.",
               "fieldName": "icon",
@@ -14083,7 +14083,7 @@
               "kind": "field",
               "name": "icon",
               "type": {
-                "text": "string"
+                "text": "IconName"
               },
               "description": "Registry icon of the mark, or none. The icon slot replaces it.",
               "attribute": "icon",
@@ -14844,7 +14844,7 @@
           "name": "RayIcon",
           "tagName": "ray-icon",
           "customElement": true,
-          "description": "setIcons({ name: '<svg…>' }) replaces or adds icons (SVG markup or an SVGElement, drawn with currentColor); iconNames() lists them. Sizes follow the font unless size; --ray-icon-size and --ray-icon-stroke tune the whole system.",
+          "description": "setIcons({ name: '<svg…>' }) replaces or adds icons (SVG markup or an SVGElement, drawn with currentColor); iconNames() lists them. An icon may have a filled version for a state (filled; \"<name>:filled\" in setIcons; iconNames({ filled: true }) lists them). The components draw roles (\"ui.close\", \"ui.remove\", \"ui.expand\"…; iconAliases()), each its glyph until the app registers the role: setIcons({ \"ui.remove\": … }) changes only the chips' ×. Sizes follow the font unless size; --ray-icon-size and --ray-icon-stroke tune the whole system.",
           "superclass": {
             "name": "RayElement"
           },
@@ -14852,10 +14852,18 @@
             {
               "name": "name",
               "type": {
-                "text": "string"
+                "text": "IconName"
               },
               "description": "Registered icon name (iconNames()); \"none\" draws nothing, a blank that keeps the alignment (a menu item without its check).",
               "fieldName": "name"
+            },
+            {
+              "name": "filled",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "The filled version, for a state (active, selected, favorite, unread); the outline icon when there is none. Built in: user, info, circle-check, alert-triangle, circle-x, folder, bell, star, settings, home, message-circle.",
+              "fieldName": "filled"
             },
             {
               "name": "size",
@@ -14895,10 +14903,20 @@
               "kind": "field",
               "name": "name",
               "type": {
-                "text": "string"
+                "text": "IconName"
               },
               "description": "Registered icon name (iconNames()); \"none\" draws nothing, a blank that keeps the alignment (a menu item without its check).",
               "attribute": "name",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "filled",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "The filled version, for a state (active, selected, favorite, unread); the outline icon when there is none. Built in: user, info, circle-check, alert-triangle, circle-x, folder, bell, star, settings, home, message-circle.",
+              "attribute": "filled",
               "reflects": true
             },
             {
@@ -15999,7 +16017,7 @@
             {
               "name": "icon",
               "type": {
-                "text": "string"
+                "text": "IconName"
               },
               "description": "An icon of the registry in the bullet.",
               "fieldName": "icon"
@@ -16047,7 +16065,7 @@
               "kind": "field",
               "name": "icon",
               "type": {
-                "text": "string"
+                "text": "IconName"
               },
               "description": "An icon of the registry in the bullet.",
               "attribute": "icon",
@@ -16195,7 +16213,7 @@
             {
               "name": "icon",
               "type": {
-                "text": "string"
+                "text": "IconName"
               },
               "description": "A registered icon name, or none.",
               "fieldName": "icon"
@@ -16264,7 +16282,7 @@
               "kind": "field",
               "name": "icon",
               "type": {
-                "text": "string"
+                "text": "IconName"
               },
               "description": "A registered icon name, or none.",
               "attribute": "icon",
@@ -16483,7 +16501,7 @@
             {
               "name": "icon",
               "type": {
-                "text": "string"
+                "text": "IconName"
               },
               "description": "Status icon from the registry (default: from the color); \"none\" for no icon.",
               "fieldName": "icon"
@@ -16546,7 +16564,7 @@
               "kind": "field",
               "name": "icon",
               "type": {
-                "text": "string"
+                "text": "IconName"
               },
               "description": "Status icon from the registry (default: from the color); \"none\" for no icon.",
               "attribute": "icon",
@@ -17634,8 +17652,24 @@
               "type": {
                 "text": "string"
               },
-              "description": "What a step is called: \"Round\" is announced \"Round 4 of 12\" and names the element. Default: Step (named Steps).",
+              "description": "What a step is called: \"Round\" is announced \"Round 4 of 12\" and names the element. Default: Step (named Steps). In another language, use value-text.",
               "fieldName": "label"
+            },
+            {
+              "name": "value-text",
+              "type": {
+                "text": "string"
+              },
+              "description": "The announced text, {step} (the current one, from 1) and {count} replaced, numbers in the page's language: value-text=\"Asalto {step} de {count}\". Default: \"<label> {step} of {count}\".",
+              "fieldName": "valueText"
+            },
+            {
+              "name": "done-text",
+              "type": {
+                "text": "string"
+              },
+              "description": "The announced text once every step is done (value = count), with {count}. Default: value-text, else \"{count} of {count}, done\".",
+              "fieldName": "doneText"
             }
           ],
           "members": [
@@ -17699,8 +17733,28 @@
               "type": {
                 "text": "string"
               },
-              "description": "What a step is called: \"Round\" is announced \"Round 4 of 12\" and names the element. Default: Step (named Steps).",
+              "description": "What a step is called: \"Round\" is announced \"Round 4 of 12\" and names the element. Default: Step (named Steps). In another language, use value-text.",
               "attribute": "label",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "valueText",
+              "type": {
+                "text": "string"
+              },
+              "description": "The announced text, {step} (the current one, from 1) and {count} replaced, numbers in the page's language: value-text=\"Asalto {step} de {count}\". Default: \"<label> {step} of {count}\".",
+              "attribute": "value-text",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "doneText",
+              "type": {
+                "text": "string"
+              },
+              "description": "The announced text once every step is done (value = count), with {count}. Default: value-text, else \"{count} of {count}, done\".",
+              "attribute": "done-text",
               "reflects": false
             }
           ],
