@@ -1,6 +1,6 @@
 # ray-elements
 
-> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.5.2.
+> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.6.0.
 
 ray-elements is a design system of standard web components (custom elements
 with Shadow DOM, no dependencies): `<ray-button>`, `<ray-input>`,
@@ -268,10 +268,10 @@ Members whose name starts with `_` are internal.
 - [Date picker](https://elements.raylang.dev/components/date-picker.md): `<ray-date-picker>`, `<ray-calendar>` (Inputs). A date field with a calendar dropdown, and the calendar on its own.
 - [File upload](https://elements.raylang.dev/components/file-upload.md): `<ray-file-upload>` (Inputs). A drop zone to pick files: drag, click, keyboard or paste.
 - [Input](https://elements.raylang.dev/components/input.md): `<ray-input>` (Inputs). A text field with label, description and error (Mantine's TextInput).
-- [Number input](https://elements.raylang.dev/components/number-input.md): `<ray-number-input>` (Inputs). A number field (Mantine's NumberInput): + and − buttons (hold to repeat), arrow keys, min, max and step, fixed decimals, a prefix and a suffix, a thousands separator.
+- [Number input](https://elements.raylang.dev/components/number-input.md): `<ray-number-input>` (Inputs). A number field (Mantine's NumberInput): + and − buttons (hold to repeat), arrow keys, min, max and step, fixed decimals, a prefix and a suffix, a thousands separator, or a duration (m:ss).
 - [Password input](https://elements.raylang.dev/components/password-input.md): `<ray-password-input>` (Inputs). A password field with a button that shows or hides what was typed (Mantine's PasswordInput).
 - [Path input](https://elements.raylang.dev/components/path-input.md): `<ray-path-input>` (Inputs). A field for a path on disk: a file to open, a folder, or where to save.
-- [Radio group](https://elements.raylang.dev/components/radio.md): `<ray-radio-group>`, `<ray-radio>` (Inputs). One choice among options: ray-radio elements inside a ray-radio-group, which is the form control.
+- [Radio group](https://elements.raylang.dev/components/radio.md): `<ray-radio-group>`, `<ray-radio>`, `<ray-radio-card>` (Inputs). One choice among options: ray-radio (or ray-radio-card) elements inside a ray-radio-group, which is the form control.
 - [Search](https://elements.raylang.dev/components/search.md): `<ray-search>` (Inputs). A search box: icon, clear button, an optional shortcut that focuses it, and a debounced ray-search event.
 - [Segmented control](https://elements.raylang.dev/components/segmented-control.md): `<ray-segmented-control>` (Inputs). One choice among a few, as a segmented row with a sliding indicator.
 - [Select](https://elements.raylang.dev/components/select.md): `<ray-select>` (Inputs). A select with its own dropdown (keyboard, typeahead, groups); options from child <option> elements or the data property.
@@ -308,8 +308,10 @@ Members whose name starts with `_` are internal.
 - [Empty state](https://elements.raylang.dev/components/empty-state.md): `<ray-empty-state>` (Feedback). What a list, table or pane shows when it is empty: icon, title, text and the action that fills it.
 - [Notification](https://elements.raylang.dev/components/notification.md): `<ray-notification>`, `<ray-toaster>` (Feedback). Toasts: notify(), updateNotification(), hideNotification(), clearNotifications(); shown in a ray-toaster (a polite live region in the top layer).
 - [Progress](https://elements.raylang.dev/components/progress.md): `<ray-progress>` (Feedback). A determinate or (without value) indeterminate progress bar, announced as a progressbar.
+- [Ring progress](https://elements.raylang.dev/components/ring-progress.md): `<ray-ring-progress>` (Feedback). Progress as a ring (Mantine's RingProgress), with content in the middle: a countdown, a goal, an upload.
 - [Skeleton](https://elements.raylang.dev/components/skeleton.md): `<ray-skeleton>` (Feedback). A placeholder while content loads: a shimmering block, a circle or text lines; with loaded it shows its content.
 - [Spinner](https://elements.raylang.dev/components/spinner.md): `<ray-spinner>` (Feedback). An indeterminate loading indicator, announced as a status.
+- [Step dots](https://elements.raylang.dev/components/step-dots.md): `<ray-step-dots>` (Feedback). A row of dots, one per step: done, current, to do.
 - [App bar](https://elements.raylang.dev/components/app-bar.md): `<ray-app-bar>` (Layout). The top bar of a phone screen (Material's top app bar, the iOS navigation bar): back or menu, a title and subtitle, actions, and an optional row under it.
 - [App shell](https://elements.raylang.dev/components/app-shell.md): `<ray-app-shell>` (Layout). The frame of an app (Mantine's AppShell): header, navbar, main, aside and footer on wide screens; on phones one column with a bottom bar.
 - [Aspect ratio](https://elements.raylang.dev/components/aspect-ratio.md): `<ray-aspect-ratio>` (Layout). A box with a fixed width/height ratio; its image, video or iframe fills it.

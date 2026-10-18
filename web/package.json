@@ -1,6 +1,6 @@
 {
   "name": "@raylang/elements",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "Web components for any app, with raylang extras (shadcn/ui + Mantine inspired)",
   "license": "Apache-2.0",
   "keywords": ["web-components", "custom-elements", "design-system", "ui", "raylang"],
@@ -244,6 +244,10 @@
       "types": "./ray-elements.d.ts",
       "default": "./components/progress/progress.js"
     },
+    "./ring-progress": {
+      "types": "./ray-elements.d.ts",
+      "default": "./components/ring-progress/ring-progress.js"
+    },
     "./skeleton": {
       "types": "./ray-elements.d.ts",
       "default": "./components/skeleton/skeleton.js"
@@ -251,6 +255,10 @@
     "./spinner": {
       "types": "./ray-elements.d.ts",
       "default": "./components/spinner/spinner.js"
+    },
+    "./step-dots": {
+      "types": "./ray-elements.d.ts",
+      "default": "./components/step-dots/step-dots.js"
     },
     "./app-bar": {
       "types": "./ray-elements.d.ts",

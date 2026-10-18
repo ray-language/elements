@@ -361,8 +361,8 @@ export declare class RayButton extends RayElement {
   gradient: string | undefined;
   /** A palette color (blue, red…) or any CSS color. Default: the primary color. */
   color: string | undefined;
-  /** Height, padding and font size. */
-  size: "xs" | "sm" | "md" | "lg" | "xl";
+  /** Height, padding and font size: xs…xl or any CSS length (the padding and the font follow). */
+  size: "xs" | "sm" | "md" | "lg" | "xl" | (string & {});
   /** Corner radius. Default: --ray-radius-default. */
   radius: "xs" | "sm" | "md" | "lg" | "xl" | "full" | undefined;
   /** submit/reset act on the enclosing form. */
@@ -407,8 +407,8 @@ export declare class RayIconButton extends RayButton {
   gradient: string | undefined;
   /** A palette color or any CSS color. */
   color: string | undefined;
-  /** Width and height. */
-  size: "xs" | "sm" | "md" | "lg" | "xl";
+  /** Width and height: xs…xl or any CSS length ("5.5rem": a big main action, round with radius=full); the icon scales with it. */
+  size: "xs" | "sm" | "md" | "lg" | "xl" | (string & {});
   /** Not interactive. */
   disabled: boolean | undefined;
   /** Shows a spinner instead of the icon. */
@@ -865,6 +865,8 @@ export declare class RayNumberInput extends FieldControl {
   decimalSeparator: string;
   /** When out-of-range input is clamped: on blur, while typing, or never (then it is invalid). */
   clamp: "blur" | "strict" | "none";
+  /** duration: the value is seconds, shown and typed as m:ss (h:mm:ss when min or max reaches an hour; a plain number is seconds); aria-valuetext says "3 minutes, 15 seconds" in the page's language. decimals, prefix, suffix and the separators do not apply. */
+  format: "number" | "duration";
   /** No + and − buttons (the keys still step). */
   hideControls: boolean | undefined;
   /** Shown while empty. */
@@ -950,10 +952,10 @@ export declare class RayRadioGroup extends FormControl {
   color: string | undefined;
   /** Checked look of every radio: filled circle, or colored ring and dot. */
   variant: "filled" | "outline";
-  /** The radios of the group. */
+  /** The radios (and radio cards) of the group. */
   readonly radios: RayRadio[];
 }
-/** <ray-radio> One choice among options: ray-radio elements inside a ray-radio-group, which is the form control. */
+/** <ray-radio> One choice among options: ray-radio (or ray-radio-card) elements inside a ray-radio-group, which is the form control. */
 export declare class RayRadio extends RayElement {
   /** Value given to the group when chosen. */
   value: string | undefined;
@@ -971,6 +973,11 @@ export declare class RayRadio extends RayElement {
   size: "xs" | "sm" | "md" | "lg" | "xl" | undefined;
   /** Overrides the group variant. */
   variant: "filled" | "outline" | undefined;
+}
+/** <ray-radio-card> A radio drawn as a card: a title (label), a detail (description), an icon, more content; checked, it takes the color's border and light background. Inside a ray-radio-group like a ray-radio (arrow keys, the form, required, disabled); put the cards in a ray-grid for columns. */
+export declare class RayRadioCard extends RayRadio {
+  /** No radio circle: the card's border and background alone show the choice. */
+  hideIndicator: boolean | undefined;
 }
 
 // --- Search (search)
@@ -2198,6 +2205,27 @@ export declare class RayProgress extends RayElement {
   label: string | undefined;
 }
 
+// --- Ring progress (ring-progress)
+/** <ray-ring-progress> The arc starts at 12 o'clock and runs clockwise; a countdown is a value that goes down. Without value it spins (indeterminate). The middle holds the default slot (a clock), or the percentage with show-value. */
+export declare class RayRingProgress extends RayElement {
+  /** Progress, from 0 to max. Unset: indeterminate (a spinning arc). */
+  value: number | undefined;
+  /** The value of a full ring. */
+  max: number;
+  /** A palette color or any CSS color. Default: the primary color. */
+  color: string | undefined;
+  /** Diameter: xs…xl (3, 5, 7.5, 10, 12.5rem) or any CSS length. */
+  size: "xs" | "sm" | "md" | "lg" | "xl" | (string & {});
+  /** Width of the ring: a CSS length (a bare number is px). Default: a tenth of the diameter. */
+  thickness: string | undefined;
+  /** Rounded ends of the arc. */
+  roundCaps: boolean | undefined;
+  /** Shows the percentage in the middle (when the default slot is empty). */
+  showValue: boolean | undefined;
+  /** Accessible name (default: Progress). */
+  label: string | undefined;
+}
+
 // --- Skeleton (skeleton)
 /** <ray-skeleton> aria-busy="true" on the host while loading; the placeholder is aria-hidden. */
 export declare class RaySkeleton extends RayElement {
@@ -2226,6 +2254,23 @@ export declare class RaySpinner extends RayElement {
   size: "xs" | "sm" | "md" | "lg" | "xl";
   /** Text read by screen readers. */
   label: string;
+}
+
+// --- Step dots (step-dots)
+/** <ray-step-dots> Dots before value are done (filled), the one at value is current (a filled pill), the rest are to do (empty). Not interactive: for steps the user picks, use ray-stepper (or the dots of ray-carousel). Many dots wrap onto more lines. */
+export declare class RayStepDots extends RayElement {
+  /** Number of steps (dots). */
+  count: number;
+  /** The current step, 0-based; count means every step is done. */
+  value: number;
+  /** A palette color or any CSS color for done and current dots. Default: the primary color. */
+  color: string | undefined;
+  /** Size of a dot. */
+  size: "xs" | "sm" | "md" | "lg" | "xl";
+  /** Where the row sits in its width. */
+  align: "start" | "center" | "end";
+  /** What a step is called: "Round" is announced "Round 4 of 12" and names the element. Default: Step (named Steps). */
+  label: string | undefined;
 }
 
 // --- App bar (app-bar)
@@ -2500,6 +2545,7 @@ declare global {
     "ray-path-input": RayPathInput;
     "ray-radio-group": RayRadioGroup;
     "ray-radio": RayRadio;
+    "ray-radio-card": RayRadioCard;
     "ray-search": RaySearch;
     "ray-segmented-control": RaySegmentedControl;
     "ray-select": RaySelect;
@@ -2549,8 +2595,10 @@ declare global {
     "ray-notification": RayNotification;
     "ray-toaster": RayToaster;
     "ray-progress": RayProgress;
+    "ray-ring-progress": RayRingProgress;
     "ray-skeleton": RaySkeleton;
     "ray-spinner": RaySpinner;
+    "ray-step-dots": RayStepDots;
     "ray-app-bar": RayAppBar;
     "ray-app-shell": RayAppShell;
     "ray-aspect-ratio": RayAspectRatio;

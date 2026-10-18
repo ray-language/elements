@@ -45,24 +45,7 @@
         },
         {
           "name": "size",
-          "description": "Height, padding and font size.",
-          "values": [
-            {
-              "name": "xs"
-            },
-            {
-              "name": "sm"
-            },
-            {
-              "name": "md"
-            },
-            {
-              "name": "lg"
-            },
-            {
-              "name": "xl"
-            }
-          ]
+          "description": "Height, padding and font size: xs…xl or any CSS length (the padding and the font follow)."
         },
         {
           "name": "radius",
@@ -211,24 +194,7 @@
         },
         {
           "name": "size",
-          "description": "Width and height.",
-          "values": [
-            {
-              "name": "xs"
-            },
-            {
-              "name": "sm"
-            },
-            {
-              "name": "md"
-            },
-            {
-              "name": "lg"
-            },
-            {
-              "name": "xl"
-            }
-          ]
+          "description": "Width and height: xs…xl or any CSS length (\"5.5rem\": a big main action, round with radius=full); the icon scales with it."
         },
         {
           "name": "disabled",
@@ -351,24 +317,7 @@
         },
         {
           "name": "size",
-          "description": "Height, padding and font size.",
-          "values": [
-            {
-              "name": "xs"
-            },
-            {
-              "name": "sm"
-            },
-            {
-              "name": "md"
-            },
-            {
-              "name": "lg"
-            },
-            {
-              "name": "xl"
-            }
-          ]
+          "description": "Height, padding and font size: xs…xl or any CSS length (the padding and the font follow)."
         },
         {
           "name": "radius",
@@ -1655,6 +1604,18 @@
           ]
         },
         {
+          "name": "format",
+          "description": "duration: the value is seconds, shown and typed as m:ss (h:mm:ss when min or max reaches an hour; a plain number is seconds); aria-valuetext says \"3 minutes, 15 seconds\" in the page's language. decimals, prefix, suffix and the separators do not apply.",
+          "values": [
+            {
+              "name": "number"
+            },
+            {
+              "name": "duration"
+            }
+          ]
+        },
+        {
           "name": "hide-controls",
           "description": "No + and − buttons (the keys still step).",
           "valueSet": "v"
@@ -2283,8 +2244,78 @@
     },
     {
       "name": "ray-radio",
-      "description": "One choice among options: ray-radio elements inside a ray-radio-group, which is the form control.",
+      "description": "One choice among options: ray-radio (or ray-radio-card) elements inside a ray-radio-group, which is the form control.",
       "attributes": [
+        {
+          "name": "value",
+          "description": "Value given to the group when chosen."
+        },
+        {
+          "name": "checked",
+          "description": "Whether this radio is the group's value; setting it sets the group's value. The checked attribute marks the group's initial value (when the group has no value attribute).",
+          "valueSet": "v"
+        },
+        {
+          "name": "label",
+          "description": "Label text (or the content)."
+        },
+        {
+          "name": "description",
+          "description": "Help text under the label."
+        },
+        {
+          "name": "disabled",
+          "description": "Cannot be chosen.",
+          "valueSet": "v"
+        },
+        {
+          "name": "color",
+          "description": "Overrides the group color."
+        },
+        {
+          "name": "size",
+          "description": "Overrides the group size.",
+          "values": [
+            {
+              "name": "xs"
+            },
+            {
+              "name": "sm"
+            },
+            {
+              "name": "md"
+            },
+            {
+              "name": "lg"
+            },
+            {
+              "name": "xl"
+            }
+          ]
+        },
+        {
+          "name": "variant",
+          "description": "Overrides the group variant.",
+          "values": [
+            {
+              "name": "filled"
+            },
+            {
+              "name": "outline"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ray-radio-card",
+      "description": "A radio drawn as a card: a title (label), a detail (description), an icon, more content; checked, it takes the color's border and light background. Inside a ray-radio-group like a ray-radio (arrow keys, the form, required, disabled); put the cards in a ray-grid for columns.",
+      "attributes": [
+        {
+          "name": "hide-indicator",
+          "description": "No radio circle: the card's border and background alone show the choice.",
+          "valueSet": "v"
+        },
         {
           "name": "value",
           "description": "Value given to the group when chosen."
@@ -5190,6 +5221,46 @@
       ]
     },
     {
+      "name": "ray-ring-progress",
+      "description": "The arc starts at 12 o'clock and runs clockwise; a countdown is a value that goes down. Without value it spins (indeterminate). The middle holds the default slot (a clock), or the percentage with show-value.",
+      "attributes": [
+        {
+          "name": "value",
+          "description": "Progress, from 0 to max. Unset: indeterminate (a spinning arc)."
+        },
+        {
+          "name": "max",
+          "description": "The value of a full ring."
+        },
+        {
+          "name": "color",
+          "description": "A palette color or any CSS color. Default: the primary color."
+        },
+        {
+          "name": "size",
+          "description": "Diameter: xs…xl (3, 5, 7.5, 10, 12.5rem) or any CSS length."
+        },
+        {
+          "name": "thickness",
+          "description": "Width of the ring: a CSS length (a bare number is px). Default: a tenth of the diameter."
+        },
+        {
+          "name": "round-caps",
+          "description": "Rounded ends of the arc.",
+          "valueSet": "v"
+        },
+        {
+          "name": "show-value",
+          "description": "Shows the percentage in the middle (when the default slot is empty).",
+          "valueSet": "v"
+        },
+        {
+          "name": "label",
+          "description": "Accessible name (default: Progress)."
+        }
+      ]
+    },
+    {
       "name": "ray-skeleton",
       "description": "aria-busy=\"true\" on the host while loading; the placeholder is aria-hidden.",
       "attributes": [
@@ -5268,6 +5339,64 @@
         {
           "name": "label",
           "description": "Text read by screen readers."
+        }
+      ]
+    },
+    {
+      "name": "ray-step-dots",
+      "description": "Dots before value are done (filled), the one at value is current (a filled pill), the rest are to do (empty). Not interactive: for steps the user picks, use ray-stepper (or the dots of ray-carousel). Many dots wrap onto more lines.",
+      "attributes": [
+        {
+          "name": "count",
+          "description": "Number of steps (dots)."
+        },
+        {
+          "name": "value",
+          "description": "The current step, 0-based; count means every step is done."
+        },
+        {
+          "name": "color",
+          "description": "A palette color or any CSS color for done and current dots. Default: the primary color."
+        },
+        {
+          "name": "size",
+          "description": "Size of a dot.",
+          "values": [
+            {
+              "name": "xs"
+            },
+            {
+              "name": "sm"
+            },
+            {
+              "name": "md"
+            },
+            {
+              "name": "lg"
+            },
+            {
+              "name": "xl"
+            }
+          ]
+        },
+        {
+          "name": "align",
+          "description": "Where the row sits in its width.",
+          "values": [
+            {
+              "name": "start"
+            },
+            {
+              "name": "center"
+            },
+            {
+              "name": "end"
+            }
+          ]
+        },
+        {
+          "name": "label",
+          "description": "What a step is called: \"Round\" is announced \"Round 4 of 12\" and names the element. Default: Step (named Steps)."
         }
       ]
     },

@@ -1,6 +1,6 @@
 # ray-elements
 
-> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.5.2.
+> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.6.0.
 
 ray-elements is a design system of standard web components (custom elements
 with Shadow DOM, no dependencies): `<ray-button>`, `<ray-input>`,
@@ -292,7 +292,7 @@ Properties:
 - `variant`: `filled` | `light` | `outline` | `subtle` | `default` | `transparent` | `gradient` | `raised`, default `filled`, reflects. Visual style. raised: a physical key on a darker edge that sinks when pressed (mouse, touch or keyboard).
 - `gradient`: string, reflects. With variant=gradient: "from to [deg]", palette colors or CSS colors ("teal blue 90"). Default: the --ray-gradient-* tokens.
 - `color`: string. A palette color (blue, red…) or any CSS color. Default: the primary color.
-- `size`: `xs` | `sm` | `md` | `lg` | `xl`, default `sm`, reflects. Height, padding and font size.
+- `size`: `"xs" | "sm" | "md" | "lg" | "xl" | (string & {})`, default `sm`, reflects. Height, padding and font size: xs…xl or any CSS length (the padding and the font follow).
 - `radius`: `xs` | `sm` | `md` | `lg` | `xl` | `full`. Corner radius. Default: --ray-radius-default.
 - `type`: `button` | `submit` | `reset`, default `button`. submit/reset act on the enclosing form.
 - `disabled`: boolean. Not interactive (also when inside a disabled fieldset).
@@ -354,7 +354,7 @@ Properties:
 - `variant`: `filled` | `light` | `outline` | `subtle` | `default` | `transparent` | `gradient` | `raised`, default `subtle`, reflects. Visual style.
 - `gradient`: string, reflects. With variant=gradient: "from to [deg]", palette colors or CSS colors ("teal blue 90"). Default: the --ray-gradient-* tokens.
 - `color`: string. A palette color or any CSS color.
-- `size`: `xs` | `sm` | `md` | `lg` | `xl`, default `sm`, reflects. Width and height.
+- `size`: `"xs" | "sm" | "md" | "lg" | "xl" | (string & {})`, default `sm`, reflects. Width and height: xs…xl or any CSS length ("5.5rem": a big main action, round with radius=full); the icon scales with it.
 - `disabled`: boolean. Not interactive.
 - `loading`: boolean. Shows a spinner instead of the icon.
 
@@ -911,7 +911,7 @@ Vue `v-model`: `value` (updated on input).
 
 ### Number input
 
-A number field (Mantine's NumberInput): + and − buttons (hold to repeat), arrow keys, min, max and step, fixed decimals, a prefix and a suffix, a thousands separator. An ARIA spinbutton.
+A number field (Mantine's NumberInput): + and − buttons (hold to repeat), arrow keys, min, max and step, fixed decimals, a prefix and a suffix, a thousands separator, or a duration (m:ss). An ARIA spinbutton.
 
 Import: `import "@raylang/elements/number-input";` · Category: Inputs
 
@@ -931,6 +931,7 @@ Properties:
 - `thousandsSeparator` (attribute `thousands-separator`): string. Groups thousands in the shown text (",", ".", " ").
 - `decimalSeparator` (attribute `decimal-separator`): string, default `.`. The decimal mark shown and typed ("," in many locales).
 - `clamp`: `blur` | `strict` | `none`, default `blur`. When out-of-range input is clamped: on blur, while typing, or never (then it is invalid).
+- `format`: `number` | `duration`, default `number`, reflects. duration: the value is seconds, shown and typed as m:ss (h:mm:ss when min or max reaches an hour; a plain number is seconds); aria-valuetext says "3 minutes, 15 seconds" in the page's language. decimals, prefix, suffix and the separators do not apply.
 - `hideControls` (attribute `hide-controls`): boolean, reflects. No + and − buttons (the keys still step).
 - `placeholder`: string. Shown while empty.
 - `readonly`: boolean, reflects. Not editable, still submitted.
@@ -1052,7 +1053,7 @@ for e in ui.events() {
 
 ### Radio group
 
-One choice among options: ray-radio elements inside a ray-radio-group, which is the form control.
+One choice among options: ray-radio (or ray-radio-card) elements inside a ray-radio-group, which is the form control.
 
 Import: `import "@raylang/elements/radio";` · Category: Inputs
 
@@ -1082,11 +1083,11 @@ Events:
 
 Slots:
 
-- (default): ray-radio elements (may be wrapped in layout elements).
+- (default): ray-radio or ray-radio-card elements (may be wrapped in layout elements: a ray-grid of cards).
 
 Methods and properties:
 
-- `readonly radios: RayRadio[]`: The radios of the group.
+- `readonly radios: RayRadio[]`: The radios (and radio cards) of the group.
 
 Vue `v-model`: `value` (updated on change).
 
@@ -1111,6 +1112,26 @@ Parts (`::part()`):
 
 - `indicator`: The circle.
 - `label`: The label.
+
+#### `<ray-radio-card>` (RayRadioCard, extends RayRadio)
+
+A radio drawn as a card: a title (label), a detail (description), an icon, more content; checked, it takes the color's border and light background. Inside a ray-radio-group like a ray-radio (arrow keys, the form, required, disabled); put the cards in a ray-grid for columns.
+
+Properties:
+
+- `hideIndicator` (attribute `hide-indicator`): boolean, reflects. No radio circle: the card's border and background alone show the choice.
+
+Also the properties of RayRadio (`<ray-radio>`): `value`, `checked`, `label`, `description`, `disabled`, `color`, `size`, `variant`.
+
+Slots:
+
+- (default): More content under the description.
+- `icon`: An icon before the title.
+
+Parts (`::part()`):
+
+- `root`: The card.
+- `icon`: Around the icon slot.
 
 ### Search
 
@@ -2777,6 +2798,37 @@ Parts (`::part()`):
 - `bar`: The filled bar.
 - `value`: The percentage beside the bar (show-value on xs, sm, md).
 
+### Ring progress
+
+Progress as a ring (Mantine's RingProgress), with content in the middle: a countdown, a goal, an upload. Announced as a progressbar.
+
+Import: `import "@raylang/elements/ring-progress";` · Category: Feedback
+
+#### `<ray-ring-progress>` (RayRingProgress, extends RayElement)
+
+The arc starts at 12 o'clock and runs clockwise; a countdown is a value that goes down. Without value it spins (indeterminate). The middle holds the default slot (a clock), or the percentage with show-value.
+
+Properties:
+
+- `value`: number. Progress, from 0 to max. Unset: indeterminate (a spinning arc).
+- `max`: number, default `100`. The value of a full ring.
+- `color`: string, reflects. A palette color or any CSS color. Default: the primary color.
+- `size`: `"xs" | "sm" | "md" | "lg" | "xl" | (string & {})`, default `md`, reflects. Diameter: xs…xl (3, 5, 7.5, 10, 12.5rem) or any CSS length.
+- `thickness`: string, reflects. Width of the ring: a CSS length (a bare number is px). Default: a tenth of the diameter.
+- `roundCaps` (attribute `round-caps`): boolean, reflects. Rounded ends of the arc.
+- `showValue` (attribute `show-value`): boolean, reflects. Shows the percentage in the middle (when the default slot is empty).
+- `label`: string. Accessible name (default: Progress).
+
+Slots:
+
+- (default): The middle of the ring (a clock, a figure, an icon); its font scales with size.
+
+Parts (`::part()`):
+
+- `track`: The background circle.
+- `bar`: The arc.
+- `center`: The middle, around the default slot.
+
 ### Skeleton
 
 A placeholder while content loads: a shimmering block, a circle or text lines; with loaded it shows its content.
@@ -2823,6 +2875,30 @@ Properties:
 Parts (`::part()`):
 
 - `spinner`: The ring.
+
+### Step dots
+
+A row of dots, one per step: done, current, to do. A compact progress for rounds, onboarding pages or a quiz; announced as a progressbar ("Round 4 of 12").
+
+Import: `import "@raylang/elements/step-dots";` · Category: Feedback
+
+#### `<ray-step-dots>` (RayStepDots, extends RayElement)
+
+Dots before value are done (filled), the one at value is current (a filled pill), the rest are to do (empty). Not interactive: for steps the user picks, use ray-stepper (or the dots of ray-carousel). Many dots wrap onto more lines.
+
+Properties:
+
+- `count`: number, default `0`. Number of steps (dots).
+- `value`: number, default `0`. The current step, 0-based; count means every step is done.
+- `color`: string, reflects. A palette color or any CSS color for done and current dots. Default: the primary color.
+- `size`: `xs` | `sm` | `md` | `lg` | `xl`, default `sm`, reflects. Size of a dot.
+- `align`: `start` | `center` | `end`, default `center`, reflects. Where the row sits in its width.
+- `label`: string. What a step is called: "Round" is announced "Round 4 of 12" and names the element. Default: Step (named Steps).
+
+Parts (`::part()`):
+
+- `dots`: The row.
+- `dot`: Each dot ([data-state] done, current or todo).
 
 ### App bar
 
