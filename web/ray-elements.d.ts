@@ -229,6 +229,7 @@ export declare const srOnlyStyles: CSSStyleSheet;
 // --- positioning and focus ---------------------------------------------------
 
 export interface PlaceOptions {
+  /** side[-align]: top|bottom|left|right, -start|-end; on top/bottom, -start/-end follow the writing direction. */
   placement?: string;
   offset?: number;
   padding?: number;
@@ -246,6 +247,10 @@ export declare function autoUpdate(anchor: Element | object, floating: HTMLEleme
 export declare function tabbables(root: Element | ShadowRoot, options?: { lightOnly?: boolean }): HTMLElement[];
 /** Focuses the first [autofocus] or tabbable element; whether something got focus. */
 export declare function focusFirst(root: Element | ShadowRoot, options?: { lightOnly?: boolean }): boolean;
+/** Whether the element lays out right to left (dir="rtl" on it or an ancestor). */
+export declare function isRtl(el: Element): boolean;
+/** An arrow key as the reading direction sees it: right to left, ArrowLeft comes back as "ArrowRight" and the reverse. */
+export declare function inlineKey(key: string, el: Element): string;
 
 // --- charts (core/charts.js) -----------------------------------------------------
 
@@ -488,8 +493,8 @@ export declare class RayCheckbox extends FieldControl {
   color: string | undefined;
   /** Box and font size. */
   size: "xs" | "sm" | "md" | "lg" | "xl";
-  /** Side of the label. */
-  labelPosition: "right" | "left";
+  /** Side of the label: start/end follow the writing direction; left/right are sides of the screen. */
+  labelPosition: "end" | "start" | "right" | "left";
 }
 
 // --- Checkbox group (checkbox-group)
@@ -1137,8 +1142,8 @@ export declare class RaySwitch extends RayCheckbox {
   description: string | undefined;
   /** Error text. */
   error: string | undefined;
-  /** Side of the label. */
-  labelPosition: "right" | "left";
+  /** Side of the label: start/end follow the writing direction; left/right are sides of the screen. */
+  labelPosition: "end" | "start" | "right" | "left";
   /** Track color when on. */
   color: string | undefined;
   /** Track size. */
@@ -1339,8 +1344,8 @@ export declare class RaySidebar extends RayElement {
   collapsed: boolean | undefined;
   /** Narrow screens: the drawer is shown (modal, focus trapped; Escape, backdrop click or a followed link close it). */
   open: boolean | undefined;
-  /** The edge it sits on. */
-  side: "left" | "right";
+  /** The edge it sits on (its border faces the content, its narrow-screen drawer slides from there): start/end follow the writing direction; left/right are sides of the screen. */
+  side: "start" | "end" | "left" | "right";
   /** A panel against the edge, or a floating card with a margin. */
   variant: "sidebar" | "floating";
   /** Width when expanded (CSS length). Default 16rem. */
@@ -1381,8 +1386,8 @@ export declare class RayStepper extends RayElement {
   active: number;
   /** Steps in a row above the content, or in a column beside it. */
   orientation: "horizontal" | "vertical";
-  /** Label beside the number, or under it (narrow screens, many steps). */
-  iconPosition: "left" | "top";
+  /** Label beside the number (after it in the reading direction), or under it (narrow screens, many steps). "left", its former name, still works. */
+  iconPosition: "start" | "top" | "left";
   /** Completed steps are buttons that go back to them. */
   allowStepSelect: boolean | undefined;
   /** With allow-step-select off, false lets the user jump to any step. */
@@ -1558,8 +1563,8 @@ export declare class RayDrawer extends RayElement {
   label: string | undefined;
   /** A line under the title (the drawer's accessible description). */
   description: string | undefined;
-  /** The edge it slides from. */
-  position: "right" | "left" | "top" | "bottom";
+  /** The edge it slides from: start/end follow the writing direction; left/right are sides of the screen. */
+  position: "end" | "start" | "right" | "left" | "top" | "bottom";
   /** Width (left/right) or height (top/bottom): xs…xl, full, or any CSS length. */
   size: "xs" | "sm" | "md" | "lg" | "xl" | "full" | (string & {});
   /** No backdrop nor scroll lock: the page stays interactive (a side panel). */
@@ -1597,7 +1602,7 @@ export interface RayDrawerEventMap extends HTMLElementEventMap {
 export declare class RayMenu extends Floating {
   /** Shown. */
   open: boolean | undefined;
-  /** Preferred side and alignment. */
+  /** Preferred side and alignment: top/bottom/left/right are sides of the screen; on top and bottom, -start/-end follow the writing direction (right to left, "bottom-start" lines up the right edges). */
   placement: "bottom-start" | "bottom" | "bottom-end" | "top-start" | "top" | "top-end" | "right-start" | "left-start";
   /** Opens on right click (contextmenu) over the trigger area, at the pointer. */
   context: boolean | undefined;
@@ -1651,7 +1656,7 @@ export declare class RayMenuDivider extends RayElement {
 export declare class RayPopover extends Floating {
   /** Shown. */
   open: boolean | undefined;
-  /** Preferred side and alignment. */
+  /** Preferred side and alignment: top/bottom/left/right are sides of the screen; on top and bottom, -start/-end follow the writing direction (right to left, "bottom-start" lines up the right edges). */
   placement: "bottom" | "bottom-start" | "bottom-end" | "top" | "top-start" | "top-end" | "left" | "left-start" | "left-end" | "right" | "right-start" | "right-end";
   /** Gap to the trigger in px. */
   offset: number;
@@ -1688,7 +1693,7 @@ export interface RayPopoverEventMap extends HTMLElementEventMap {
 export declare class RayTooltip extends Floating {
   /** Tooltip text. */
   label: string | undefined;
-  /** Preferred side. */
+  /** Preferred side; -start/-end follow the writing direction. */
   placement: "top" | "bottom" | "left" | "right" | "top-start" | "top-end" | "bottom-start" | "bottom-end";
   /** ms before showing. */
   openDelay: number;
@@ -1717,8 +1722,8 @@ export declare class RayAccordion extends RayElement {
   multiple: boolean | undefined;
   /** Visual style. */
   variant: "default" | "contained" | "separated" | "filled";
-  /** Side of the chevron. */
-  chevronPosition: "right" | "left";
+  /** Side of the chevron: start/end follow the writing direction; left/right are sides of the screen. */
+  chevronPosition: "end" | "start" | "right" | "left";
   /** The items. */
   readonly items: RayAccordionItem[];
   /** The open values as an array, whatever the mode. */
@@ -1938,6 +1943,8 @@ export declare class RayIcon extends RayElement {
   name: IconName | undefined;
   /** The filled version, for a state (active, selected, favorite, unread); the outline icon when there is none. Built in: user, info, circle-check, alert-triangle, circle-x, folder, bell, star, settings, home, message-circle. */
   filled: boolean | undefined;
+  /** Mirrored in a right-to-left context (dir="rtl"), for an icon that points along the text: back, forward, send, undo. The roles that do (ui.next, ui.previous, ui.first, ui.last, ui.disclosure, ui.separator) mirror by themselves. */
+  mirror: boolean | undefined;
   /** xs…xl or any CSS length. Default: 1em. */
   size: string | undefined;
   /** Accessible name; without it the icon is decorative (hidden from screen readers). */
@@ -2063,8 +2070,8 @@ export interface RayTableEventMap extends HTMLElementEventMap {
 export declare class RayTimeline extends RayElement {
   /** Index of the last reached item (-1: none). */
   active: number;
-  /** Side of the line. */
-  align: "left" | "right";
+  /** Side of the line: start/end follow the writing direction; left/right are sides of the screen. */
+  align: "start" | "end" | "left" | "right";
   /** Bullet size: px as a number or a CSS length (default 20px). */
   bulletSize: string | undefined;
   /** Line width in px (default 2). */
@@ -2170,8 +2177,8 @@ export interface RayNotificationEventMap extends HTMLElementEventMap {
 }
 /** <ray-toaster> Created by notify() when missing; add one yourself to choose its position. A stack (newest in front, older ones peeking behind) that spreads into a list on hover or keyboard focus; on touch screens a tap expands it, a tap outside collapses it, and a sideways swipe dismisses a toast. Auto-close pauses while expanded. Full width on phones. */
 export declare class RayToaster extends RayElement {
-  /** Corner of the stack. */
-  position: "bottom-right" | "bottom-left" | "bottom-center" | "top-right" | "top-left" | "top-center";
+  /** Corner of the stack: -start/-end follow the writing direction; -left/-right are sides of the screen. */
+  position: "bottom-end" | "bottom-start" | "bottom-center" | "top-end" | "top-start" | "top-center" | "bottom-right" | "bottom-left" | "top-right" | "top-left";
   /** Maximum kept; the oldest go first. */
   limit: number;
   /** Toasts shown in the collapsed stack (the rest wait, hidden). */
@@ -2430,9 +2437,9 @@ export declare class RayScrollArea extends RayElement {
   label: string | undefined;
   /** The scrolling element (scrollTop, scrollTo…). */
   readonly viewport: HTMLElement;
-  /** Scrolls to the top (left). */
+  /** Scrolls to the start: the top, or the left when horizontal (the right right to left). */
   scrollToStart(options?: { behavior?: ScrollBehavior }): void;
-  /** Scrolls to the bottom (right when horizontal). */
+  /** Scrolls to the end: the bottom, or the right when horizontal (the left right to left). */
   scrollToEnd(options?: { behavior?: ScrollBehavior }): void;
   addEventListener<K extends keyof RayScrollAreaEventMap>(type: K, listener: (this: RayScrollArea, ev: RayScrollAreaEventMap[K]) => unknown, options?: boolean | AddEventListenerOptions): void;
   addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
@@ -2440,8 +2447,8 @@ export declare class RayScrollArea extends RayElement {
   removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
 }
 export interface RayScrollAreaEventMap extends HTMLElementEventMap {
-  /** The end came within threshold (once per arrival). */
-  "ray-reach-end": CustomEvent<{ edge: "bottom" | "right" }>;
+  /** The end came within threshold (once per arrival): the bottom, or the right when horizontal (the left right to left). */
+  "ray-reach-end": CustomEvent<{ edge: "bottom" | "right" | "left" }>;
 }
 
 // --- Separator (separator)
@@ -2451,8 +2458,8 @@ export declare class RaySeparator extends RayElement {
   orientation: "horizontal" | "vertical";
   /** Text in the middle of a horizontal rule. */
   label: string | undefined;
-  /** Where the label sits. */
-  labelPosition: "left" | "center" | "right";
+  /** Where the label sits: start/end follow the writing direction; left/right are sides of the screen. */
+  labelPosition: "start" | "center" | "end" | "left" | "right";
   /** Thickness (1–5px). */
   size: "xs" | "sm" | "md" | "lg" | "xl";
   /** Line style. */

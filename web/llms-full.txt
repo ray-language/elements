@@ -1,6 +1,6 @@
 # ray-elements
 
-> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.7.0.
+> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.8.0.
 
 ray-elements is a design system of standard web components (custom elements
 with Shadow DOM, no dependencies): `<ray-button>`, `<ray-input>`,
@@ -82,7 +82,10 @@ reference of every component follows them.
   `import { Trash2 } from "lucide-static"; setIcons({ trash: Trash2 })` (or
   its SVG pasted in, without a bundler); never draw your own paths. To change
   one control's icon (only the chips' ×), register its role
-  (`setIcons({ "ui.remove": … })`, roles listed in the reference).
+  (`setIcons({ "ui.remove": … })`, roles listed in the reference). Under
+  `dir="rtl"` the roles that point along the text (`ui.next`…) mirror by
+  themselves; an icon of yours that points (back, send) takes `mirror`
+  (`<ray-icon name="arrow-left" mirror>`).
 - **Overlays are in the top layer**: `ray-dialog` is a native modal
   `<dialog>`; popovers, menus, tooltips and notifications are `[popover]`
   elements. Never fight them with `z-index` or `overflow`.
@@ -163,6 +166,21 @@ green a check, red an error, yellow a warning, others info).
   checks contrast), `onThemeChange(cb)`. `<ray-theme-toggle>` is the switch.
 - App-wide defaults for a component: `configure({ defaults: { "ray-button":
   { variant: "light" } } })`.
+
+## Right to left
+
+- `dir="rtl"` on `<html>` (with its `lang`) or a subtree mirrors the
+  components: layout, the icons that point along the text, arrow keys
+  (ArrowLeft is forward), sliders, carousels, splits and floating panels
+  (`bottom-start` lines up with the right edge). Nothing to configure.
+- For a side, write `start`/`end` (they follow the direction):
+  `label-position="start"`, `<ray-drawer position="start">`,
+  `<ray-sidebar side="end">`, `<ray-toaster position="top-start">`.
+  `left`/`right` are sides of the screen whatever the direction; use them
+  only when the side is meant (a map's legend).
+- Your own CSS: logical properties (`margin-inline-start`, `inset-inline-end`,
+  `text-align: start`), never `left`/`right`; an icon of yours that points
+  (back, send) takes `mirror`.
 
 ## React and Vue
 
@@ -463,7 +481,7 @@ Properties:
 - `variant`: `filled` | `outline`, default `filled`, reflects. Checked look: filled box, or colored border and mark.
 - `color`: string. A palette color or any CSS color for the checked state.
 - `size`: `xs` | `sm` | `md` | `lg` | `xl`, default `sm`, reflects. Box and font size.
-- `labelPosition` (attribute `label-position`): `right` | `left`, default `right`, reflects. Side of the label.
+- `labelPosition` (attribute `label-position`): `end` | `start` | `right` | `left`, default `end`, reflects. Side of the label: start/end follow the writing direction; left/right are sides of the screen.
 
 Also the properties of FieldControl: `radius`, `descriptionPosition`.
 
@@ -1334,7 +1352,7 @@ Properties:
 - `label`: string. Label text (or the content).
 - `description`: string. Help text.
 - `error`: string. Error text.
-- `labelPosition` (attribute `label-position`): `right` | `left`, default `right`, reflects. Side of the label.
+- `labelPosition` (attribute `label-position`): `end` | `start` | `right` | `left`, default `end`, reflects. Side of the label: start/end follow the writing direction; left/right are sides of the screen.
 - `color`: string. Track color when on.
 - `size`: `xs` | `sm` | `md` | `lg` | `xl`, default `sm`, reflects. Track size.
 - `disabled`: boolean. Not interactive nor submitted.
@@ -1634,7 +1652,7 @@ Properties:
 
 - `collapsed`: boolean, reflects. Wide screens: an icon rail instead of the full panel.
 - `open`: boolean, reflects. Narrow screens: the drawer is shown (modal, focus trapped; Escape, backdrop click or a followed link close it).
-- `side`: `left` | `right`, default `left`, reflects. The edge it sits on.
+- `side`: `start` | `end` | `left` | `right`, default `start`, reflects. The edge it sits on (its border faces the content, its narrow-screen drawer slides from there): start/end follow the writing direction; left/right are sides of the screen.
 - `variant`: `sidebar` | `floating`, default `sidebar`, reflects. A panel against the edge, or a floating card with a margin.
 - `width`: string. Width when expanded (CSS length). Default 16rem.
 - `collapsedWidth` (attribute `collapsed-width`): string. Width of the icon rail. Default 3.5rem.
@@ -1697,7 +1715,7 @@ Properties:
 
 - `active`: number, default `0`, reflects. Index of the active step (steps.length: completed).
 - `orientation`: `horizontal` | `vertical`, default `horizontal`, reflects. Steps in a row above the content, or in a column beside it.
-- `iconPosition` (attribute `icon-position`): `left` | `top`, default `left`, reflects. Label beside the number, or under it (narrow screens, many steps).
+- `iconPosition` (attribute `icon-position`): `start` | `top` | `left`, default `start`, reflects. Label beside the number (after it in the reading direction), or under it (narrow screens, many steps). "left", its former name, still works.
 - `allowStepSelect` (attribute `allow-step-select`): boolean, reflects. Completed steps are buttons that go back to them.
 - `linear`: boolean, default `true`. With allow-step-select off, false lets the user jump to any step.
 - `size`: `sm` | `md` | `lg`, default `md`, reflects. Size of the numbers.
@@ -1969,7 +1987,7 @@ Properties:
 - `open`: boolean, reflects. Shown.
 - `label`: string. Heading (also the accessible name).
 - `description`: string. A line under the title (the drawer's accessible description).
-- `position`: `right` | `left` | `top` | `bottom`, default `right`, reflects. The edge it slides from.
+- `position`: `end` | `start` | `right` | `left` | `top` | `bottom`, default `end`, reflects. The edge it slides from: start/end follow the writing direction; left/right are sides of the screen.
 - `size`: `"xs" | "sm" | "md" | "lg" | "xl" | "full" | (string & {})`, default `md`, reflects. Width (left/right) or height (top/bottom): xs…xl, full, or any CSS length.
 - `modeless`: boolean, reflects. No backdrop nor scroll lock: the page stays interactive (a side panel).
 - `floating`: boolean, reflects. Detached from the edge, with rounded corners.
@@ -2013,7 +2031,7 @@ Import: `import "@raylang/elements/menu";` · Category: Overlays
 Properties:
 
 - `open`: boolean, reflects. Shown.
-- `placement`: `bottom-start` | `bottom` | `bottom-end` | `top-start` | `top` | `top-end` | `right-start` | `left-start`, default `bottom-start`, reflects. Preferred side and alignment.
+- `placement`: `bottom-start` | `bottom` | `bottom-end` | `top-start` | `top` | `top-end` | `right-start` | `left-start`, default `bottom-start`, reflects. Preferred side and alignment: top/bottom/left/right are sides of the screen; on top and bottom, -start/-end follow the writing direction (right to left, "bottom-start" lines up the right edges).
 - `context`: boolean, reflects. Opens on right click (contextmenu) over the trigger area, at the pointer.
 - `keepOpen` (attribute `keep-open`): boolean, reflects. Choosing an item does not close the menu.
 - `native`: boolean, reflects. With a native host (ray-elements/core/raylang.js in a std/ui window), opens as the system's context menu at the pointer: items and dividers, same ray-select.
@@ -2097,7 +2115,7 @@ Positioned in JS (flip + shift to stay in the viewport). JS: show(), hide(), tog
 Properties:
 
 - `open`: boolean, reflects. Shown.
-- `placement`: `bottom` | `bottom-start` | `bottom-end` | `top` | `top-start` | `top-end` | `left` | `left-start` | `left-end` | `right` | `right-start` | `right-end`, default `bottom`, reflects. Preferred side and alignment.
+- `placement`: `bottom` | `bottom-start` | `bottom-end` | `top` | `top-start` | `top-end` | `left` | `left-start` | `left-end` | `right` | `right-start` | `right-end`, default `bottom`, reflects. Preferred side and alignment: top/bottom/left/right are sides of the screen; on top and bottom, -start/-end follow the writing direction (right to left, "bottom-start" lines up the right edges).
 - `offset`: number, default `8`. Gap to the trigger in px.
 - `width`: string. Panel width (px number or CSS length). Default: its content.
 - `matchWidth` (attribute `match-width`): boolean. At least as wide as the trigger.
@@ -2138,7 +2156,7 @@ Import: `import "@raylang/elements/tooltip";` · Category: Overlays
 Properties:
 
 - `label`: string. Tooltip text.
-- `placement`: `top` | `bottom` | `left` | `right` | `top-start` | `top-end` | `bottom-start` | `bottom-end`, default `top`, reflects. Preferred side.
+- `placement`: `top` | `bottom` | `left` | `right` | `top-start` | `top-end` | `bottom-start` | `bottom-end`, default `top`, reflects. Preferred side; -start/-end follow the writing direction.
 - `openDelay` (attribute `open-delay`): number, default `300`. ms before showing.
 - `closeDelay` (attribute `close-delay`): number, default `0`. ms before hiding.
 - `color`: string. A palette color or any CSS color. Default: inverted foreground/background.
@@ -2174,7 +2192,7 @@ Properties:
 - `value`: `string | string[] | undefined`. Open item's value; with multiple, an array (attribute: comma-separated).
 - `multiple`: boolean, reflects. Several items may be open.
 - `variant`: `default` | `contained` | `separated` | `filled`, default `default`, reflects. Visual style.
-- `chevronPosition` (attribute `chevron-position`): `right` | `left`, default `right`, reflects. Side of the chevron.
+- `chevronPosition` (attribute `chevron-position`): `end` | `start` | `right` | `left`, default `end`, reflects. Side of the chevron: start/end follow the writing direction; left/right are sides of the screen.
 
 Events:
 
@@ -2474,6 +2492,7 @@ Properties:
 
 - `name`: `IconName`, reflects. Registered icon name (iconNames()); "none" draws nothing, a blank that keeps the alignment (a menu item without its check).
 - `filled`: boolean, reflects. The filled version, for a state (active, selected, favorite, unread); the outline icon when there is none. Built in: user, info, circle-check, alert-triangle, circle-x, folder, bell, star, settings, home, message-circle.
+- `mirror`: boolean, reflects. Mirrored in a right-to-left context (dir="rtl"), for an icon that points along the text: back, forward, send, undo. The roles that do (ui.next, ui.previous, ui.first, ui.last, ui.disclosure, ui.separator) mirror by themselves.
 - `size`: string, reflects. xs…xl or any CSS length. Default: 1em.
 - `label`: string. Accessible name; without it the icon is decorative (hidden from screen readers).
 - `color`: string, reflects. A palette color or any CSS color. Default: the text color.
@@ -2629,7 +2648,7 @@ A list (role="list") of ray-timeline-item.
 Properties:
 
 - `active`: number, default `-1`, reflects. Index of the last reached item (-1: none).
-- `align`: `left` | `right`, default `left`, reflects. Side of the line.
+- `align`: `start` | `end` | `left` | `right`, default `start`, reflects. Side of the line: start/end follow the writing direction; left/right are sides of the screen.
 - `bulletSize` (attribute `bullet-size`): string. Bullet size: px as a number or a CSS length (default 20px).
 - `lineWidth` (attribute `line-width`): number. Line width in px (default 2).
 - `color`: string, reflects. A palette color or any CSS color for what is reached (default: primary).
@@ -2760,7 +2779,7 @@ Created by notify() when missing; add one yourself to choose its position. A sta
 
 Properties:
 
-- `position`: `bottom-right` | `bottom-left` | `bottom-center` | `top-right` | `top-left` | `top-center`, default `bottom-right`, reflects. Corner of the stack.
+- `position`: `bottom-end` | `bottom-start` | `bottom-center` | `top-end` | `top-start` | `top-center` | `bottom-right` | `bottom-left` | `top-right` | `top-left`, default `bottom-end`, reflects. Corner of the stack: -start/-end follow the writing direction; -left/-right are sides of the screen.
 - `limit`: number, default `5`. Maximum kept; the oldest go first.
 - `visible`: number, default `3`. Toasts shown in the collapsed stack (the rest wait, hidden).
 - `expand`: boolean, reflects. Always expanded: a list instead of a stack.
@@ -3177,7 +3196,7 @@ Properties:
 
 Events:
 
-- `ray-reach-end` (detail `{ edge: "bottom" | "right" }`): The end came within threshold (once per arrival).
+- `ray-reach-end` (detail `{ edge: "bottom" | "right" | "left" }`): The end came within threshold (once per arrival): the bottom, or the right when horizontal (the left right to left).
 
 Slots:
 
@@ -3191,8 +3210,8 @@ Parts (`::part()`):
 Methods and properties:
 
 - `readonly viewport: HTMLElement`: The scrolling element (scrollTop, scrollTo…).
-- `scrollToStart(options?: { behavior?: ScrollBehavior }): void`: Scrolls to the top (left).
-- `scrollToEnd(options?: { behavior?: ScrollBehavior }): void`: Scrolls to the bottom (right when horizontal).
+- `scrollToStart(options?: { behavior?: ScrollBehavior }): void`: Scrolls to the start: the top, or the left when horizontal (the right right to left).
+- `scrollToEnd(options?: { behavior?: ScrollBehavior }): void`: Scrolls to the end: the bottom, or the right when horizontal (the left right to left).
 
 ### Separator
 
@@ -3206,7 +3225,7 @@ Properties:
 
 - `orientation`: `horizontal` | `vertical`, default `horizontal`, reflects. Direction of the rule.
 - `label`: string, reflects. Text in the middle of a horizontal rule.
-- `labelPosition` (attribute `label-position`): `left` | `center` | `right`, default `center`, reflects. Where the label sits.
+- `labelPosition` (attribute `label-position`): `start` | `center` | `end` | `left` | `right`, default `center`, reflects. Where the label sits: start/end follow the writing direction; left/right are sides of the screen.
 - `size`: `xs` | `sm` | `md` | `lg` | `xl`, default `xs`, reflects. Thickness (1–5px).
 - `variant`: `solid` | `dashed` | `dotted`, default `solid`, reflects. Line style.
 
@@ -3777,6 +3796,7 @@ export declare const srOnlyStyles: CSSStyleSheet;
 // --- positioning and focus ---------------------------------------------------
 
 export interface PlaceOptions {
+  /** side[-align]: top|bottom|left|right, -start|-end; on top/bottom, -start/-end follow the writing direction. */
   placement?: string;
   offset?: number;
   padding?: number;
@@ -3794,6 +3814,10 @@ export declare function autoUpdate(anchor: Element | object, floating: HTMLEleme
 export declare function tabbables(root: Element | ShadowRoot, options?: { lightOnly?: boolean }): HTMLElement[];
 /** Focuses the first [autofocus] or tabbable element; whether something got focus. */
 export declare function focusFirst(root: Element | ShadowRoot, options?: { lightOnly?: boolean }): boolean;
+/** Whether the element lays out right to left (dir="rtl" on it or an ancestor). */
+export declare function isRtl(el: Element): boolean;
+/** An arrow key as the reading direction sees it: right to left, ArrowLeft comes back as "ArrowRight" and the reverse. */
+export declare function inlineKey(key: string, el: Element): string;
 
 // --- charts (core/charts.js) -----------------------------------------------------
 

@@ -172,7 +172,7 @@ const pickerStyles = css`
     height: calc(var(--_w) * 0.62);
     background:
       linear-gradient(to top, #000, transparent),
-      linear-gradient(to right, #fff, hsl(var(--_hue) 100% 50%));
+      linear-gradient(to right, #fff, hsl(var(--_hue) 100% 50%)); /* physical */
     border-radius: var(--ray-radius-sm);
     cursor: crosshair;
     touch-action: none;
@@ -180,7 +180,7 @@ const pickerStyles = css`
   :host([full-width]) .area { height: auto; aspect-ratio: 5 / 3; }
   .area-thumb {
     position: absolute;
-    left: var(--_s);
+    left: var(--_s); /* physical */
     top: calc(100% - var(--_v));
     width: var(--_thumb);
     height: var(--_thumb);
@@ -209,13 +209,13 @@ const pickerStyles = css`
     inset: 0 calc(var(--_thumb) / -2);
     border-radius: inherit;
   }
-  .hue::before { background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); }
-  .alpha::before { background: linear-gradient(to right, transparent, var(--_solid)), ${CHECKER}; }
+  .hue::before { background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); } /* physical */
+  .alpha::before { background: linear-gradient(to right, transparent, var(--_solid)), ${CHECKER}; } /* physical */
   :host(:not([data-alpha])) .alpha { display: none; }
   .slider-thumb {
     position: absolute;
     top: 50%;
-    left: var(--_pos);
+    left: var(--_pos); /* physical */
     width: var(--_thumb);
     height: var(--_thumb);
     box-sizing: border-box;

@@ -1,6 +1,6 @@
 # ray-elements
 
-> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.7.0.
+> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.8.0.
 
 ray-elements is a design system of standard web components (custom elements
 with Shadow DOM, no dependencies): `<ray-button>`, `<ray-input>`,
@@ -82,7 +82,10 @@ reference of every component follows them.
   `import { Trash2 } from "lucide-static"; setIcons({ trash: Trash2 })` (or
   its SVG pasted in, without a bundler); never draw your own paths. To change
   one control's icon (only the chips' ×), register its role
-  (`setIcons({ "ui.remove": … })`, roles listed in the reference).
+  (`setIcons({ "ui.remove": … })`, roles listed in the reference). Under
+  `dir="rtl"` the roles that point along the text (`ui.next`…) mirror by
+  themselves; an icon of yours that points (back, send) takes `mirror`
+  (`<ray-icon name="arrow-left" mirror>`).
 - **Overlays are in the top layer**: `ray-dialog` is a native modal
   `<dialog>`; popovers, menus, tooltips and notifications are `[popover]`
   elements. Never fight them with `z-index` or `overflow`.
@@ -163,6 +166,21 @@ green a check, red an error, yellow a warning, others info).
   checks contrast), `onThemeChange(cb)`. `<ray-theme-toggle>` is the switch.
 - App-wide defaults for a component: `configure({ defaults: { "ray-button":
   { variant: "light" } } })`.
+
+## Right to left
+
+- `dir="rtl"` on `<html>` (with its `lang`) or a subtree mirrors the
+  components: layout, the icons that point along the text, arrow keys
+  (ArrowLeft is forward), sliders, carousels, splits and floating panels
+  (`bottom-start` lines up with the right edge). Nothing to configure.
+- For a side, write `start`/`end` (they follow the direction):
+  `label-position="start"`, `<ray-drawer position="start">`,
+  `<ray-sidebar side="end">`, `<ray-toaster position="top-start">`.
+  `left`/`right` are sides of the screen whatever the direction; use them
+  only when the side is meant (a map's legend).
+- Your own CSS: logical properties (`margin-inline-start`, `inset-inline-end`,
+  `text-align: start`), never `left`/`right`; an icon of yours that points
+  (back, send) takes `mirror`.
 
 ## React and Vue
 

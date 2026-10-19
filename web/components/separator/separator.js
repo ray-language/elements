@@ -18,7 +18,7 @@ const styles = css`
   :host([variant="dotted"]) { --_style: dotted; }
   :host([orientation="vertical"]) { display: inline-block; align-self: stretch; height: auto; min-height: 1em; vertical-align: middle; }
   .line { border-top: var(--_w) var(--_style) var(--_color); }
-  :host([orientation="vertical"]) .line { height: 100%; border-top: 0; border-left: var(--_w) var(--_style) var(--_color); }
+  :host([orientation="vertical"]) .line { height: 100%; border-top: 0; border-inline-start: var(--_w) var(--_style) var(--_color); }
   .labeled {
     display: flex;
     align-items: center;
@@ -27,8 +27,13 @@ const styles = css`
     color: var(--ray-muted-foreground);
   }
   .labeled::before, .labeled::after { content: ""; flex: 1; border-top: var(--_w) var(--_style) var(--_color); }
-  :host([label-position="left"]) .labeled::before { flex: 0 0 var(--ray-space-3); }
-  :host([label-position="right"]) .labeled::after { flex: 0 0 var(--ray-space-3); }
+  /* start/end follow the writing direction; left/right are sides of the screen. */
+  :host([label-position="start"]) .labeled::before,
+  :host([label-position="left"]) .labeled:dir(ltr)::before,
+  :host([label-position="right"]) .labeled:dir(rtl)::before,
+  :host([label-position="end"]) .labeled::after,
+  :host([label-position="right"]) .labeled:dir(ltr)::after,
+  :host([label-position="left"]) .labeled:dir(rtl)::after { flex: 0 0 var(--ray-space-3); }
   [hidden] { display: none !important; }
 `;
 

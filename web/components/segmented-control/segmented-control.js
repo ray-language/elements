@@ -3,6 +3,7 @@
 // <option> elements or the `data` property. Form-associated.
 
 import { css, define } from "../../core/core.js";
+import { inlineKey } from "../../core/direction.js";
 import { applyColor, sizeStyles, radiusStyles } from "../../core/styles.js";
 import { FormControl } from "../../core/form.js";
 
@@ -22,7 +23,7 @@ const styles = css`
   .indicator {
     position: absolute;
     top: 0;
-    left: 0;
+    left: 0; /* physical */
     z-index: 0;
     box-sizing: border-box;
     background: var(--ray-raised);
@@ -170,9 +171,10 @@ export class RaySegmentedControl extends FormControl {
   _key(e) {
     const enabled = this._buttons.filter((b) => !b.disabled);
     const i = enabled.findIndex((b) => b.dataset.value === this.value);
+    const key = inlineKey(e.key, this);
     let next = null;
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") next = enabled[(i + 1) % enabled.length];
-    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = enabled[(i - 1 + enabled.length) % enabled.length];
+    if (key === "ArrowRight" || key === "ArrowDown") next = enabled[(i + 1) % enabled.length];
+    else if (key === "ArrowLeft" || key === "ArrowUp") next = enabled[(i - 1 + enabled.length) % enabled.length];
     if (!next) return;
     e.preventDefault();
     this._choose(next.dataset.value, true);

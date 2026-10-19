@@ -22,9 +22,14 @@ const itemStyles = css`
   }
   :host([hidden]) { display: none; }
   :host([data-last]) { padding-bottom: 0; }
-  :host([data-align="right"]) { grid-template-columns: minmax(0, 1fr) var(--_bullet); text-align: right; }
-  :host([data-align="right"]) .bullet-col { grid-column: 2; grid-row: 1; }
-  :host([data-align="right"]) .body { grid-column: 1; grid-row: 1; }
+  /* The line at the end: end, or left/right as sides of the screen (the
+     grid's columns follow the writing direction). */
+  :host([data-align="end"]), :host([data-align="right"]:dir(ltr)), :host([data-align="left"]:dir(rtl)) {
+    grid-template-columns: minmax(0, 1fr) var(--_bullet);
+    text-align: end;
+  }
+  :host([data-align="end"]) .bullet-col, :host([data-align="right"]:dir(ltr)) .bullet-col, :host([data-align="left"]:dir(rtl)) .bullet-col { grid-column: 2; grid-row: 1; }
+  :host([data-align="end"]) .body, :host([data-align="right"]:dir(ltr)) .body, :host([data-align="left"]:dir(rtl)) .body { grid-column: 1; grid-row: 1; }
   .bullet-col { position: relative; display: flex; justify-content: center; }
   .bullet {
     position: relative;
@@ -47,12 +52,12 @@ const itemStyles = css`
     position: absolute;
     top: var(--_bullet);
     bottom: calc(-1 * var(--ray-space-6));
-    left: calc(50% - var(--_line) / 2);
+    left: calc(50% - var(--_line) / 2); /* physical */
     width: 0;
-    border-left: var(--_line) var(--_line-style, solid) var(--ray-border);
+    border-left: var(--_line) var(--_line-style, solid) var(--ray-border); /* physical */
   }
   :host([data-last]) .line { display: none; }
-  :host([data-line-reached]) .line { border-left-color: var(--_filled); }
+  :host([data-line-reached]) .line { border-left-color: var(--_filled); } /* physical */
   :host([line-variant="dashed"]) .line { --_line-style: dashed; }
   :host([line-variant="dotted"]) .line { --_line-style: dotted; }
   .body { min-width: 0; padding-top: calc((var(--_bullet) - 1.4em) / 2); }
@@ -67,7 +72,7 @@ const itemStyles = css`
 export class RayTimeline extends RayElement {
   static properties = {
     active: { type: Number, reflect: true, default: -1 },
-    align: { type: String, reflect: true, default: "left" },
+    align: { type: String, reflect: true, default: "start" },
     bulletSize: { type: String, attribute: "bullet-size" },
     lineWidth: { type: Number, attribute: "line-width" },
     color: { type: String, reflect: true },
@@ -106,7 +111,7 @@ export class RayTimeline extends RayElement {
       item.toggleAttribute("data-reached", active >= 0 && k <= active);
       item.toggleAttribute("data-line-reached", active >= 0 && (this.reverseActive ? k <= active && k > 0 : k < active));
       item.toggleAttribute("data-last", i === n - 1);
-      item.setAttribute("data-align", this.align === "right" ? "right" : "left");
+      item.setAttribute("data-align", ["end", "left", "right"].includes(this.align) ? this.align : "start");
     });
   }
 }
