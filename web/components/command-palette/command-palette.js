@@ -86,6 +86,7 @@ const styles = css`
   .icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 1.25rem; height: 1.25rem; color: var(--ray-muted-foreground); }
   .option[aria-selected="true"] .icon { color: inherit; }
   .icon svg { width: 1rem; height: 1rem; }
+  .prefix { flex: none; display: inline-flex; align-items: center; font-size: var(--ray-font-size-xs); color: var(--ray-muted-foreground); }
   .text { display: flex; flex: 1; flex-direction: column; min-width: 0; }
   .label, .description { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .label { font-size: var(--ray-font-size-sm); }
@@ -187,6 +188,9 @@ export class RayCommandPalette extends RayElement {
     emptyLabel: { type: String, default: "Nothing found" },
     label: { type: String, default: "Command palette" },
     hideHint: { type: Boolean, reflect: true },
+    navigateLabel: { type: String, default: "navigate" },
+    runLabel: { type: String, default: "run" },
+    closeLabel: { type: String, default: "close" },
     overlayBlur: { type: String },
     nativeMenus: { type: Boolean, attribute: "native-menus", reflect: true },
   };
@@ -196,7 +200,7 @@ export class RayCommandPalette extends RayElement {
       <div class="search" part="search">${SEARCH_ICON}<input id="input" part="input" role="combobox" aria-expanded="true" aria-controls="list" aria-autocomplete="list" autocomplete="off" spellcheck="false"></div>
       <div class="list" id="list" role="listbox" part="list"></div>
       <div class="empty" part="empty" hidden></div>
-      <div class="hint" part="hint"><span><b>↑↓</b> navigate</span><span><b>↵</b> run</span><span><b>esc</b> close</span></div>
+      <div class="hint" part="hint"><span><b>↑↓</b> <span id="hint-navigate"></span></span><span><b>↵</b> <span id="hint-run"></span></span><span><b>esc</b> <span id="hint-close"></span></span></div>
       <slot name="overlay"></slot>
     </dialog>`;
 
@@ -281,6 +285,9 @@ export class RayCommandPalette extends RayElement {
     this.dialog.setAttribute("aria-label", this.label ?? "Command palette");
     if (this.input.value !== (this.query ?? "")) this.input.value = this.query ?? "";
     this.$(".hint").hidden = Boolean(this.hideHint);
+    this.$("#hint-navigate").textContent = this.navigateLabel ?? "";
+    this.$("#hint-run").textContent = this.runLabel ?? "";
+    this.$("#hint-close").textContent = this.closeLabel ?? "";
     this._render();
     if (changed.has("open") || this._first === undefined) {
       this._first = false;
@@ -398,6 +405,14 @@ export class RayCommandPalette extends RayElement {
       else if (getIcon(String(a.icon))) icon.innerHTML = getIcon(String(a.icon));
       else icon.textContent = String(a.icon);
       opt.append(icon);
+    }
+    // Content of its own before the text, any width: a colored method tag.
+    if (a.prefix !== undefined && a.prefix !== null && a.prefix !== "") {
+      const prefix = document.createElement("span");
+      prefix.className = "prefix";
+      if (a.prefix instanceof Node) prefix.append(a.prefix);
+      else prefix.textContent = String(a.prefix);
+      opt.append(prefix);
     }
     const text = document.createElement("span");
     text.className = "text";

@@ -4483,6 +4483,15 @@
               "default": "default"
             },
             {
+              "name": "suggestions-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the suggestion list.",
+              "fieldName": "suggestionsLabel",
+              "default": "Suggestions"
+            },
+            {
               "name": "autocomplete",
               "type": {
                 "text": "string"
@@ -4706,12 +4715,51 @@
               "default": "default"
             },
             {
+              "kind": "field",
+              "name": "highlight",
+              "type": {
+                "text": "((text: string) => HighlightRange[]) | null"
+              },
+              "description": "Marks ranges of the text, painted behind it: called with the text on every change (typed or set), it returns { start, end, kind?, title? } offsets. kind \"error\" is red with a wavy underline; any other kind is styled with ::part(highlight-<kind>); title is the tooltip over the range. Ranges must not overlap."
+            },
+            {
+              "kind": "field",
+              "name": "complete",
+              "type": {
+                "text": "((text: string, caret: number) => CompletionResult | null | Promise<CompletionResult | null>) | null"
+              },
+              "description": "Inline suggestions: called as the user types (and on Ctrl+Space) with the text and the caret, it returns the part of the text a suggestion would replace and the suggestions ({ from, to, items }), or null for none. A list opens under that part (ArrowUp/Down, Enter or Tab to accept, Escape to close); the chosen item's value replaces from–to as an undoable edit, then ray-complete fires. The field becomes a combobox (aria-autocomplete, aria-expanded, aria-activedescendant)."
+            },
+            {
+              "kind": "field",
+              "name": "suggestionsLabel",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the suggestion list.",
+              "attribute": "suggestions-label",
+              "reflects": false,
+              "default": "Suggestions"
+            },
+            {
               "kind": "method",
               "name": "select",
               "description": "Selects the text."
+            },
+            {
+              "kind": "method",
+              "name": "refreshHighlight",
+              "description": "Runs highlight again, when what it marks changed but the text did not."
             }
           ],
           "events": [
+            {
+              "name": "ray-complete",
+              "type": {
+                "text": "CustomEvent<{ item: CompletionItem; from: number; to: number }>"
+              },
+              "description": "A suggestion was accepted (the text already has it)."
+            },
             {
               "name": "input",
               "type": {
@@ -4757,6 +4805,22 @@
             {
               "name": "error",
               "description": "The error message."
+            },
+            {
+              "name": "suggestions",
+              "description": "The suggestion list (a listbox in the top layer)."
+            },
+            {
+              "name": "suggestion",
+              "description": "Each suggestion ([aria-selected] when active)."
+            },
+            {
+              "name": "highlight",
+              "description": "Each marked range (also highlight-<kind> for a range with a kind)."
+            },
+            {
+              "name": "text-layer",
+              "description": "The layer behind the text that holds the marks."
             }
           ]
         }
@@ -4776,6 +4840,506 @@
           "declaration": {
             "name": "RayInput",
             "module": "components/input/input.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "components/mode-input/mode-input.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "RayModeInput",
+          "tagName": "ray-mode-input",
+          "customElement": true,
+          "description": "Declare the modes as <option> children (label, data-icon, data-hint, data-description, disabled, and data-set-<attribute> for each attribute the mode sets on the field) or with the options property. A mode's attributes replace the field's own while it is chosen and give them back after. The menu is a ray-menu of radio items in the field's shadow root; Alt+ArrowDown opens it from the field, and the trigger keeps the caret in the field.",
+          "superclass": {
+            "name": "RayInput"
+          },
+          "attributes": [
+            {
+              "name": "mode",
+              "type": {
+                "text": "string"
+              },
+              "description": "The chosen mode's value (default: the first). Setting it applies that mode without ray-mode-change.",
+              "fieldName": "mode"
+            },
+            {
+              "name": "display",
+              "type": {
+                "text": "\"label\" | \"icon\" | \"both\""
+              },
+              "description": "What the trigger shows: the mode's hint or label, its icon, or both. Default: the icon when the mode has one, else the label.",
+              "fieldName": "display"
+            },
+            {
+              "name": "position",
+              "type": {
+                "text": "\"start\" | \"end\""
+              },
+              "description": "The side of the field the trigger sits on.",
+              "fieldName": "position",
+              "default": "start"
+            },
+            {
+              "name": "menu-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "The trigger's accessible name, read with the current mode (\"Mode: File\").",
+              "fieldName": "menuLabel",
+              "default": "Mode"
+            },
+            {
+              "name": "native-menu",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "With a native host (a std/ui window with the bridge), the system's menu (no descriptions there).",
+              "fieldName": "nativeMenu"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "description": "Current value. The value attribute is the initial value (restored on form reset).",
+              "fieldName": "value"
+            },
+            {
+              "name": "type",
+              "type": {
+                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\""
+              },
+              "description": "Input type.",
+              "fieldName": "type",
+              "default": "text"
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "description": "Form field name.",
+              "fieldName": "name"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Visible label (also the accessible name).",
+              "fieldName": "label"
+            },
+            {
+              "name": "description",
+              "type": {
+                "text": "string"
+              },
+              "description": "Help text under the label.",
+              "fieldName": "description"
+            },
+            {
+              "name": "description-position",
+              "type": {
+                "text": "\"above\" | \"below\""
+              },
+              "description": "The description before the control (help first) or after it, with the error (fields in a row stay aligned).",
+              "fieldName": "descriptionPosition",
+              "default": "above"
+            },
+            {
+              "name": "error",
+              "type": {
+                "text": "string"
+              },
+              "description": "Error text; marks the field invalid (display only — does not block submit).",
+              "fieldName": "error"
+            },
+            {
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "description": "Placeholder text.",
+              "fieldName": "placeholder"
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Required for form submission; shows an asterisk.",
+              "fieldName": "required"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Not editable nor submitted.",
+              "fieldName": "disabled"
+            },
+            {
+              "name": "readonly",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Not editable, still submitted.",
+              "fieldName": "readonly"
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\""
+              },
+              "description": "Height and font size.",
+              "fieldName": "size",
+              "default": "sm"
+            },
+            {
+              "name": "radius",
+              "type": {
+                "text": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"full\""
+              },
+              "description": "Corner radius.",
+              "fieldName": "radius"
+            },
+            {
+              "name": "variant",
+              "type": {
+                "text": "\"default\" | \"filled\" | \"unstyled\""
+              },
+              "description": "Box style.",
+              "fieldName": "variant",
+              "default": "default"
+            },
+            {
+              "name": "suggestions-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the suggestion list.",
+              "fieldName": "suggestionsLabel",
+              "default": "Suggestions"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "mode",
+              "type": {
+                "text": "string"
+              },
+              "description": "The chosen mode's value (default: the first). Setting it applies that mode without ray-mode-change.",
+              "attribute": "mode",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "options",
+              "type": {
+                "text": "ModeOption[]"
+              },
+              "description": "The modes; when not set, the <option> children."
+            },
+            {
+              "kind": "field",
+              "name": "display",
+              "type": {
+                "text": "\"label\" | \"icon\" | \"both\""
+              },
+              "description": "What the trigger shows: the mode's hint or label, its icon, or both. Default: the icon when the mode has one, else the label.",
+              "attribute": "display",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "position",
+              "type": {
+                "text": "\"start\" | \"end\""
+              },
+              "description": "The side of the field the trigger sits on.",
+              "attribute": "position",
+              "reflects": true,
+              "default": "start"
+            },
+            {
+              "kind": "field",
+              "name": "menuLabel",
+              "type": {
+                "text": "string"
+              },
+              "description": "The trigger's accessible name, read with the current mode (\"Mode: File\").",
+              "attribute": "menu-label",
+              "reflects": false,
+              "default": "Mode"
+            },
+            {
+              "kind": "field",
+              "name": "nativeMenu",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "With a native host (a std/ui window with the bridge), the system's menu (no descriptions there).",
+              "attribute": "native-menu",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "description": "Current value. The value attribute is the initial value (restored on form reset).",
+              "attribute": "value",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "type",
+              "type": {
+                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\""
+              },
+              "description": "Input type.",
+              "attribute": "type",
+              "reflects": true,
+              "default": "text"
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "description": "Form field name.",
+              "attribute": "name",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Visible label (also the accessible name).",
+              "attribute": "label",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "description",
+              "type": {
+                "text": "string"
+              },
+              "description": "Help text under the label.",
+              "attribute": "description",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "descriptionPosition",
+              "type": {
+                "text": "\"above\" | \"below\""
+              },
+              "description": "The description before the control (help first) or after it, with the error (fields in a row stay aligned).",
+              "attribute": "description-position",
+              "reflects": true,
+              "default": "above"
+            },
+            {
+              "kind": "field",
+              "name": "error",
+              "type": {
+                "text": "string"
+              },
+              "description": "Error text; marks the field invalid (display only — does not block submit).",
+              "attribute": "error",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "description": "Placeholder text.",
+              "attribute": "placeholder",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Required for form submission; shows an asterisk.",
+              "attribute": "required",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Not editable nor submitted.",
+              "attribute": "disabled",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "readonly",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Not editable, still submitted.",
+              "attribute": "readonly",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "size",
+              "type": {
+                "text": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\""
+              },
+              "description": "Height and font size.",
+              "attribute": "size",
+              "reflects": true,
+              "default": "sm"
+            },
+            {
+              "kind": "field",
+              "name": "radius",
+              "type": {
+                "text": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"full\""
+              },
+              "description": "Corner radius.",
+              "attribute": "radius",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "variant",
+              "type": {
+                "text": "\"default\" | \"filled\" | \"unstyled\""
+              },
+              "description": "Box style.",
+              "attribute": "variant",
+              "reflects": true,
+              "default": "default"
+            },
+            {
+              "kind": "field",
+              "name": "highlight",
+              "type": {
+                "text": "((text: string) => HighlightRange[]) | null"
+              },
+              "description": "Marks ranges of the text, painted behind it: called with the text on every change (typed or set), it returns { start, end, kind?, title? } offsets. kind \"error\" is red with a wavy underline; any other kind is styled with ::part(highlight-<kind>); title is the tooltip over the range. Ranges must not overlap."
+            },
+            {
+              "kind": "field",
+              "name": "complete",
+              "type": {
+                "text": "((text: string, caret: number) => CompletionResult | null | Promise<CompletionResult | null>) | null"
+              },
+              "description": "Inline suggestions: called as the user types (and on Ctrl+Space) with the text and the caret, it returns the part of the text a suggestion would replace and the suggestions ({ from, to, items }), or null for none. A list opens under that part (ArrowUp/Down, Enter or Tab to accept, Escape to close); the chosen item's value replaces from–to as an undoable edit, then ray-complete fires. The field becomes a combobox (aria-autocomplete, aria-expanded, aria-activedescendant)."
+            },
+            {
+              "kind": "field",
+              "name": "suggestionsLabel",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the suggestion list.",
+              "attribute": "suggestions-label",
+              "reflects": false,
+              "default": "Suggestions"
+            },
+            {
+              "kind": "field",
+              "name": "modes",
+              "description": "The modes in use."
+            },
+            {
+              "kind": "field",
+              "name": "currentOption",
+              "description": "The chosen mode."
+            },
+            {
+              "kind": "method",
+              "name": "choose",
+              "description": "Chooses a mode as the user would (fires ray-mode-change)."
+            }
+          ],
+          "events": [
+            {
+              "name": "ray-mode-change",
+              "type": {
+                "text": "CustomEvent<{ mode: string; previous: string | null; option: ModeOption }>"
+              },
+              "description": "The user chose a mode (mode is already the new one); cancelable: preventDefault keeps the previous mode."
+            },
+            {
+              "name": "ray-complete",
+              "type": {
+                "text": "CustomEvent<{ item: CompletionItem; from: number; to: number }>"
+              },
+              "description": "A suggestion was accepted (the text already has it)."
+            },
+            {
+              "name": "input",
+              "type": {
+                "text": "Event"
+              },
+              "description": "On every edit (value already updated)."
+            },
+            {
+              "name": "change",
+              "type": {
+                "text": "Event"
+              },
+              "description": "When an edit is committed (blur, Enter)."
+            }
+          ],
+          "slots": [],
+          "cssParts": [
+            {
+              "name": "trigger",
+              "description": "The button that opens the menu."
+            },
+            {
+              "name": "trigger-icon",
+              "description": "The current mode's icon in the trigger."
+            },
+            {
+              "name": "trigger-label",
+              "description": "The current mode's hint or label in the trigger."
+            },
+            {
+              "name": "menu",
+              "description": "The ray-menu of modes."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "RayModeInput",
+          "declaration": {
+            "name": "RayModeInput",
+            "module": "components/mode-input/mode-input.js"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "ray-mode-input",
+          "declaration": {
+            "name": "RayModeInput",
+            "module": "components/mode-input/mode-input.js"
           }
         }
       ]
@@ -5494,6 +6058,15 @@
               "description": "Box style.",
               "fieldName": "variant",
               "default": "default"
+            },
+            {
+              "name": "suggestions-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the suggestion list.",
+              "fieldName": "suggestionsLabel",
+              "default": "Suggestions"
             }
           ],
           "members": [
@@ -5672,6 +6245,33 @@
               "attribute": "variant",
               "reflects": true,
               "default": "default"
+            },
+            {
+              "kind": "field",
+              "name": "highlight",
+              "type": {
+                "text": "((text: string) => HighlightRange[]) | null"
+              },
+              "description": "Marks ranges of the text, painted behind it: called with the text on every change (typed or set), it returns { start, end, kind?, title? } offsets. kind \"error\" is red with a wavy underline; any other kind is styled with ::part(highlight-<kind>); title is the tooltip over the range. Ranges must not overlap."
+            },
+            {
+              "kind": "field",
+              "name": "complete",
+              "type": {
+                "text": "((text: string, caret: number) => CompletionResult | null | Promise<CompletionResult | null>) | null"
+              },
+              "description": "Inline suggestions: called as the user types (and on Ctrl+Space) with the text and the caret, it returns the part of the text a suggestion would replace and the suggestions ({ from, to, items }), or null for none. A list opens under that part (ArrowUp/Down, Enter or Tab to accept, Escape to close); the chosen item's value replaces from–to as an undoable edit, then ray-complete fires. The field becomes a combobox (aria-autocomplete, aria-expanded, aria-activedescendant)."
+            },
+            {
+              "kind": "field",
+              "name": "suggestionsLabel",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the suggestion list.",
+              "attribute": "suggestions-label",
+              "reflects": false,
+              "default": "Suggestions"
             }
           ],
           "events": [
@@ -5681,6 +6281,13 @@
                 "text": "CustomEvent<{ visible: boolean }>"
               },
               "description": "The user showed or hid the password."
+            },
+            {
+              "name": "ray-complete",
+              "type": {
+                "text": "CustomEvent<{ item: CompletionItem; from: number; to: number }>"
+              },
+              "description": "A suggestion was accepted (the text already has it)."
             },
             {
               "name": "input",
@@ -5888,6 +6495,15 @@
               "description": "Box style.",
               "fieldName": "variant",
               "default": "default"
+            },
+            {
+              "name": "suggestions-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the suggestion list.",
+              "fieldName": "suggestionsLabel",
+              "default": "Suggestions"
             }
           ],
           "members": [
@@ -6079,6 +6695,33 @@
             },
             {
               "kind": "field",
+              "name": "highlight",
+              "type": {
+                "text": "((text: string) => HighlightRange[]) | null"
+              },
+              "description": "Marks ranges of the text, painted behind it: called with the text on every change (typed or set), it returns { start, end, kind?, title? } offsets. kind \"error\" is red with a wavy underline; any other kind is styled with ::part(highlight-<kind>); title is the tooltip over the range. Ranges must not overlap."
+            },
+            {
+              "kind": "field",
+              "name": "complete",
+              "type": {
+                "text": "((text: string, caret: number) => CompletionResult | null | Promise<CompletionResult | null>) | null"
+              },
+              "description": "Inline suggestions: called as the user types (and on Ctrl+Space) with the text and the caret, it returns the part of the text a suggestion would replace and the suggestions ({ from, to, items }), or null for none. A list opens under that part (ArrowUp/Down, Enter or Tab to accept, Escape to close); the chosen item's value replaces from–to as an undoable edit, then ray-complete fires. The field becomes a combobox (aria-autocomplete, aria-expanded, aria-activedescendant)."
+            },
+            {
+              "kind": "field",
+              "name": "suggestionsLabel",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the suggestion list.",
+              "attribute": "suggestions-label",
+              "reflects": false,
+              "default": "Suggestions"
+            },
+            {
+              "kind": "field",
               "name": "canBrowse",
               "description": "Whether Browse… is available (a native host offers pick_path)."
             },
@@ -6102,6 +6745,13 @@
                 "text": "CustomEvent<{ error: Error }>"
               },
               "description": "The system dialog failed."
+            },
+            {
+              "name": "ray-complete",
+              "type": {
+                "text": "CustomEvent<{ item: CompletionItem; from: number; to: number }>"
+              },
+              "description": "A suggestion was accepted (the text already has it)."
             },
             {
               "name": "input",
@@ -8644,6 +9294,15 @@
               "default": "default"
             },
             {
+              "name": "suggestions-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the suggestion list.",
+              "fieldName": "suggestionsLabel",
+              "default": "Suggestions"
+            },
+            {
               "name": "radius",
               "type": {
                 "text": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"full\""
@@ -8834,6 +9493,33 @@
             },
             {
               "kind": "field",
+              "name": "highlight",
+              "type": {
+                "text": "((text: string) => HighlightRange[]) | null"
+              },
+              "description": "Marks ranges of the text, painted behind it: called with the text on every change (typed or set), it returns { start, end, kind?, title? } offsets. kind \"error\" is red with a wavy underline; any other kind is styled with ::part(highlight-<kind>); title is the tooltip over the range. Ranges must not overlap."
+            },
+            {
+              "kind": "field",
+              "name": "complete",
+              "type": {
+                "text": "((text: string, caret: number) => CompletionResult | null | Promise<CompletionResult | null>) | null"
+              },
+              "description": "Inline suggestions: called as the user types (and on Ctrl+Space) with the text and the caret, it returns the part of the text a suggestion would replace and the suggestions ({ from, to, items }), or null for none. A list opens under that part (ArrowUp/Down, Enter or Tab to accept, Escape to close); the chosen item's value replaces from–to as an undoable edit, then ray-complete fires. The field becomes a combobox (aria-autocomplete, aria-expanded, aria-activedescendant)."
+            },
+            {
+              "kind": "field",
+              "name": "suggestionsLabel",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the suggestion list.",
+              "attribute": "suggestions-label",
+              "reflects": false,
+              "default": "Suggestions"
+            },
+            {
+              "kind": "field",
               "name": "radius",
               "type": {
                 "text": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"full\""
@@ -8841,9 +9527,21 @@
               "description": "Corner radius.",
               "attribute": "radius",
               "reflects": true
+            },
+            {
+              "kind": "method",
+              "name": "refreshHighlight",
+              "description": "Runs highlight again, when what it marks changed but the text did not."
             }
           ],
           "events": [
+            {
+              "name": "ray-complete",
+              "type": {
+                "text": "CustomEvent<{ item: CompletionItem; from: number; to: number }>"
+              },
+              "description": "A suggestion was accepted (the text already has it)."
+            },
             {
               "name": "input",
               "type": {
@@ -8868,6 +9566,22 @@
             {
               "name": "wrapper",
               "description": "The box."
+            },
+            {
+              "name": "suggestions",
+              "description": "The suggestion list (a listbox in the top layer)."
+            },
+            {
+              "name": "suggestion",
+              "description": "Each suggestion ([aria-selected] when active)."
+            },
+            {
+              "name": "highlight",
+              "description": "Each marked range (also highlight-<kind> for a range with a kind)."
+            },
+            {
+              "name": "text-layer",
+              "description": "The layer behind the text that holds the marks."
             }
           ]
         }
@@ -9585,6 +10299,297 @@
     },
     {
       "kind": "javascript-module",
+      "path": "components/doc-tabs/doc-tabs.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "RayDocTabs",
+          "tagName": "ray-doc-tabs",
+          "customElement": true,
+          "description": "Unlike ray-tabs, a tab has no panel of its own: they all control the element named by panel, whose content the app fills for the selected one. Closing is the app's: the ×, a middle click or Delete/Backspace fire ray-request-close, and the app removes the tab (after asking about unsaved changes, if it must). When the selected tab is removed, the one at its place is selected (change) and, if the closed tab had the focus, focused. More tabs than width: the bar scrolls sideways, fades the edge that hides tabs (data-overflow-start / data-overflow-end on the host), scrolls with a vertical wheel and keeps the selected tab in view.",
+          "superclass": {
+            "name": "RayElement"
+          },
+          "attributes": [
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "description": "Value of the selected tab (default: the first).",
+              "fieldName": "value"
+            },
+            {
+              "name": "panel",
+              "type": {
+                "text": "string"
+              },
+              "description": "The id of the shared panel: it gets role=tabpanel and aria-labelledby the selected tab; the tabs get aria-controls.",
+              "fieldName": "panel"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the tab list (\"Open requests\").",
+              "fieldName": "label"
+            },
+            {
+              "name": "close-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Tooltip of the ×.",
+              "fieldName": "closeLabel",
+              "default": "Close"
+            },
+            {
+              "name": "dirty-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "What assistive technology hears after the name of a dirty tab.",
+              "fieldName": "dirtyLabel",
+              "default": "Unsaved changes"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "description": "Value of the selected tab (default: the first).",
+              "attribute": "value",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "panel",
+              "type": {
+                "text": "string"
+              },
+              "description": "The id of the shared panel: it gets role=tabpanel and aria-labelledby the selected tab; the tabs get aria-controls.",
+              "attribute": "panel",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the tab list (\"Open requests\").",
+              "attribute": "label",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "closeLabel",
+              "type": {
+                "text": "string"
+              },
+              "description": "Tooltip of the ×.",
+              "attribute": "close-label",
+              "reflects": false,
+              "default": "Close"
+            },
+            {
+              "kind": "field",
+              "name": "dirtyLabel",
+              "type": {
+                "text": "string"
+              },
+              "description": "What assistive technology hears after the name of a dirty tab.",
+              "attribute": "dirty-label",
+              "reflects": false,
+              "default": "Unsaved changes"
+            },
+            {
+              "kind": "field",
+              "name": "tabs",
+              "description": "Its tabs, in order."
+            },
+            {
+              "kind": "field",
+              "name": "panelElement",
+              "description": "The shared panel, found by the panel id."
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": {
+                "text": "Event"
+              },
+              "description": "The selected tab changed: a click, the arrow keys, or the selected tab removed."
+            },
+            {
+              "name": "ray-request-close",
+              "type": {
+                "text": "CustomEvent<{ value: string; tab: RayDocTab; source: \"button\" | \"middle\" | \"key\" }>"
+              },
+              "description": "The × was clicked, the tab middle-clicked, or Delete/Backspace pressed on it: remove the tab to close it (not fired for hide-close tabs)."
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "ray-doc-tab elements."
+            },
+            {
+              "name": "end",
+              "description": "After the tabs, outside the scrolling list: a new-tab button."
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "list",
+              "description": "The tab list (it scrolls sideways when the tabs do not fit)."
+            },
+            {
+              "name": "end",
+              "description": "The end slot's box."
+            }
+          ]
+        },
+        {
+          "kind": "class",
+          "name": "RayDocTab",
+          "tagName": "ray-doc-tab",
+          "customElement": true,
+          "description": "A document's tab: an icon or tag (slot left), its name (cut with an ellipsis; give the full one in title), and the × or the unsaved dot.",
+          "superclass": {
+            "name": "RayElement"
+          },
+          "attributes": [
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "description": "Identifies the document (ray-doc-tabs value).",
+              "fieldName": "value"
+            },
+            {
+              "name": "dirty",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Unsaved changes: a dot in place of the ×, which comes back under the pointer.",
+              "fieldName": "dirty"
+            },
+            {
+              "name": "hide-close",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Cannot be closed: no ×, no middle click, no Delete.",
+              "fieldName": "hideClose"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "description": "Identifies the document (ray-doc-tabs value).",
+              "attribute": "value",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "dirty",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Unsaved changes: a dot in place of the ×, which comes back under the pointer.",
+              "attribute": "dirty",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "hideClose",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Cannot be closed: no ×, no middle click, no Delete.",
+              "attribute": "hide-close",
+              "reflects": true
+            }
+          ],
+          "events": [],
+          "slots": [
+            {
+              "name": "",
+              "description": "The document's name."
+            },
+            {
+              "name": "left",
+              "description": "An icon or a tag (a file type, an HTTP method)."
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "label",
+              "description": "The name."
+            },
+            {
+              "name": "left-section",
+              "description": "The left slot's box."
+            },
+            {
+              "name": "close",
+              "description": "The × (pointer only: it is not focusable)."
+            },
+            {
+              "name": "dot",
+              "description": "The unsaved mark."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "RayDocTabs",
+          "declaration": {
+            "name": "RayDocTabs",
+            "module": "components/doc-tabs/doc-tabs.js"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "ray-doc-tabs",
+          "declaration": {
+            "name": "RayDocTabs",
+            "module": "components/doc-tabs/doc-tabs.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "RayDocTab",
+          "declaration": {
+            "name": "RayDocTab",
+            "module": "components/doc-tabs/doc-tabs.js"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "ray-doc-tab",
+          "declaration": {
+            "name": "RayDocTab",
+            "module": "components/doc-tabs/doc-tabs.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "components/nav-link/nav-link.js",
       "declarations": [
         {
@@ -10169,8 +11174,17 @@
               "type": {
                 "text": "boolean"
               },
-              "description": "Wide screens: an icon rail instead of the full panel.",
+              "description": "Wide screens: collapsed as collapse says (an icon rail, or out of view).",
               "fieldName": "collapsed"
+            },
+            {
+              "name": "collapse",
+              "type": {
+                "text": "\"icon\" | \"offcanvas\""
+              },
+              "description": "What collapsed does on wide screens: icon, a rail of the nav links' icons; offcanvas, hidden entirely (no width, out of the tab order).",
+              "fieldName": "collapse",
+              "default": "icon"
             },
             {
               "name": "open",
@@ -10231,6 +11245,49 @@
               "description": "Accessible name of its navigation.",
               "fieldName": "label",
               "default": "Sidebar"
+            },
+            {
+              "name": "resizable",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Wide screens, expanded: its inner edge drags (or, focused, arrow-keys; Shift is faster, Home/End go to the limits) the width between min-width and max-width.",
+              "fieldName": "resizable"
+            },
+            {
+              "name": "min-width",
+              "type": {
+                "text": "number"
+              },
+              "description": "Narrowest width when resizing, in px.",
+              "fieldName": "minWidth",
+              "default": "192"
+            },
+            {
+              "name": "max-width",
+              "type": {
+                "text": "number"
+              },
+              "description": "Widest width when resizing, in px.",
+              "fieldName": "maxWidth",
+              "default": "480"
+            },
+            {
+              "name": "autosave",
+              "type": {
+                "text": "string"
+              },
+              "description": "A key: the resized width is saved in localStorage and restored. A later change of width wins.",
+              "fieldName": "autosave"
+            },
+            {
+              "name": "resize-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the resize edge.",
+              "fieldName": "resizeLabel",
+              "default": "Resize sidebar"
             }
           ],
           "members": [
@@ -10240,9 +11297,20 @@
               "type": {
                 "text": "boolean"
               },
-              "description": "Wide screens: an icon rail instead of the full panel.",
+              "description": "Wide screens: collapsed as collapse says (an icon rail, or out of view).",
               "attribute": "collapsed",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "collapse",
+              "type": {
+                "text": "\"icon\" | \"offcanvas\""
+              },
+              "description": "What collapsed does on wide screens: icon, a rail of the nav links' icons; offcanvas, hidden entirely (no width, out of the tab order).",
+              "attribute": "collapse",
+              "reflects": true,
+              "default": "icon"
             },
             {
               "kind": "field",
@@ -10319,6 +11387,59 @@
               "default": "Sidebar"
             },
             {
+              "kind": "field",
+              "name": "resizable",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Wide screens, expanded: its inner edge drags (or, focused, arrow-keys; Shift is faster, Home/End go to the limits) the width between min-width and max-width.",
+              "attribute": "resizable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "minWidth",
+              "type": {
+                "text": "number"
+              },
+              "description": "Narrowest width when resizing, in px.",
+              "attribute": "min-width",
+              "reflects": false,
+              "default": "192"
+            },
+            {
+              "kind": "field",
+              "name": "maxWidth",
+              "type": {
+                "text": "number"
+              },
+              "description": "Widest width when resizing, in px.",
+              "attribute": "max-width",
+              "reflects": false,
+              "default": "480"
+            },
+            {
+              "kind": "field",
+              "name": "autosave",
+              "type": {
+                "text": "string"
+              },
+              "description": "A key: the resized width is saved in localStorage and restored. A later change of width wins.",
+              "attribute": "autosave",
+              "reflects": false
+            },
+            {
+              "kind": "field",
+              "name": "resizeLabel",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible name of the resize edge.",
+              "attribute": "resize-label",
+              "reflects": false,
+              "default": "Resize sidebar"
+            },
+            {
               "kind": "method",
               "name": "toggle",
               "description": "Collapses/expands on wide screens; opens/closes the drawer on narrow ones."
@@ -10330,6 +11451,13 @@
             }
           ],
           "events": [
+            {
+              "name": "ray-resize",
+              "type": {
+                "text": "CustomEvent<{ width: number }>"
+              },
+              "description": "After a drag or a key resized it (resizable)."
+            },
             {
               "name": "ray-toggle",
               "type": {
@@ -10382,6 +11510,10 @@
             {
               "name": "footer",
               "description": "The footer area."
+            },
+            {
+              "name": "resizer",
+              "description": "The resize edge (a separator), shown when resizable."
             },
             {
               "name": "drawer",
@@ -10905,7 +12037,7 @@
           "name": "RayTabs",
           "tagName": "ray-tabs",
           "customElement": true,
-          "description": "Tabs and panels (WAI-ARIA tabs pattern): arrows, Home/End, automatic or manual activation.",
+          "description": "More tabs than width: the list scrolls sideways, fades the edge that hides tabs, scrolls with a vertical wheel and keeps the selected tab in view. The host then carries data-overflow-start and data-overflow-end (following the writing direction), to style it further.",
           "superclass": {
             "name": "RayElement"
           },
@@ -10943,6 +12075,15 @@
               },
               "description": "Active indicator color.",
               "fieldName": "color"
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\""
+              },
+              "description": "Height, font size and padding of the tabs (xs for a compact bar).",
+              "fieldName": "size",
+              "default": "sm"
             },
             {
               "name": "activation",
@@ -11007,6 +12148,17 @@
             },
             {
               "kind": "field",
+              "name": "size",
+              "type": {
+                "text": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\""
+              },
+              "description": "Height, font size and padding of the tabs (xs for a compact bar).",
+              "attribute": "size",
+              "reflects": true,
+              "default": "sm"
+            },
+            {
+              "kind": "field",
               "name": "activation",
               "type": {
                 "text": "\"auto\" | \"manual\""
@@ -11055,7 +12207,7 @@
           "cssParts": [
             {
               "name": "list",
-              "description": "The tab list."
+              "description": "The tab list (it scrolls sideways when the tabs do not fit)."
             },
             {
               "name": "panels",
@@ -11088,6 +12240,14 @@
               },
               "description": "Cannot be activated.",
               "fieldName": "disabled"
+            },
+            {
+              "name": "count",
+              "type": {
+                "text": "string"
+              },
+              "description": "A small number after the label (\"3\", \"99+\"), lighter than a badge; part of the tab's accessible name. Empty: none.",
+              "fieldName": "count"
             }
           ],
           "members": [
@@ -11110,6 +12270,16 @@
               "description": "Cannot be activated.",
               "attribute": "disabled",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "count",
+              "type": {
+                "text": "string"
+              },
+              "description": "A small number after the label (\"3\", \"99+\"), lighter than a badge; part of the tab's accessible name. Empty: none.",
+              "attribute": "count",
+              "reflects": true
             }
           ],
           "events": [],
@@ -11120,10 +12290,15 @@
             },
             {
               "name": "right",
-              "description": "Badge or count."
+              "description": "A badge or other content after the label (for a plain number, count is lighter)."
             }
           ],
-          "cssParts": []
+          "cssParts": [
+            {
+              "name": "count",
+              "description": "The count."
+            }
+          ]
         },
         {
           "kind": "class",
@@ -11296,6 +12471,33 @@
               "fieldName": "hideHint"
             },
             {
+              "name": "navigate-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "The keyboard hint's word for ↑↓.",
+              "fieldName": "navigateLabel",
+              "default": "navigate"
+            },
+            {
+              "name": "run-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "The keyboard hint's word for ↵.",
+              "fieldName": "runLabel",
+              "default": "run"
+            },
+            {
+              "name": "close-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "The keyboard hint's word for esc.",
+              "fieldName": "closeLabel",
+              "default": "close"
+            },
+            {
               "name": "native-menus",
               "type": {
                 "text": "boolean"
@@ -11405,6 +12607,39 @@
               "description": "No keyboard hint at the bottom.",
               "attribute": "hide-hint",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "navigateLabel",
+              "type": {
+                "text": "string"
+              },
+              "description": "The keyboard hint's word for ↑↓.",
+              "attribute": "navigate-label",
+              "reflects": false,
+              "default": "navigate"
+            },
+            {
+              "kind": "field",
+              "name": "runLabel",
+              "type": {
+                "text": "string"
+              },
+              "description": "The keyboard hint's word for ↵.",
+              "attribute": "run-label",
+              "reflects": false,
+              "default": "run"
+            },
+            {
+              "kind": "field",
+              "name": "closeLabel",
+              "type": {
+                "text": "string"
+              },
+              "description": "The keyboard hint's word for esc.",
+              "attribute": "close-label",
+              "reflects": false,
+              "default": "close"
             },
             {
               "kind": "field",
@@ -12288,6 +13523,13 @@
               "description": "An item was chosen; detail: { value, item }."
             },
             {
+              "name": "ray-request-open",
+              "type": {
+                "text": "CustomEvent<{ event: Event }>"
+              },
+              "description": "Its trigger is about to open it (click, Arrow keys, right click), before the items are read, native menu included: fill items that depend on what was clicked here. Cancelable (preventDefault keeps it closed). Not fired by show() or open = true. detail: { event }."
+            },
+            {
               "name": "ray-open",
               "type": {
                 "text": "CustomEvent<unknown>"
@@ -12352,6 +13594,31 @@
               },
               "description": "Text and hover color (e.g. red for destructive actions).",
               "fieldName": "color"
+            },
+            {
+              "name": "type",
+              "type": {
+                "text": "\"item\" | \"checkbox\" | \"radio\""
+              },
+              "description": "checkbox: choosing it toggles checked (menuitemcheckbox); radio: choosing it checks it and unchecks the radio items of the menu with the same name (menuitemradio). Both show a check mark when checked, in the native menu too.",
+              "fieldName": "type",
+              "default": "item"
+            },
+            {
+              "name": "checked",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Checked (checkbox and radio items). Already updated when ray-select fires.",
+              "fieldName": "checked"
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "description": "The group of a radio item: one checked per name in the menu.",
+              "fieldName": "name"
             }
           ],
           "members": [
@@ -12384,6 +13651,42 @@
               "description": "Text and hover color (e.g. red for destructive actions).",
               "attribute": "color",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "type",
+              "type": {
+                "text": "\"item\" | \"checkbox\" | \"radio\""
+              },
+              "description": "checkbox: choosing it toggles checked (menuitemcheckbox); radio: choosing it checks it and unchecks the radio items of the menu with the same name (menuitemradio). Both show a check mark when checked, in the native menu too.",
+              "attribute": "type",
+              "reflects": true,
+              "default": "item"
+            },
+            {
+              "kind": "field",
+              "name": "checked",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Checked (checkbox and radio items). Already updated when ray-select fires.",
+              "attribute": "checked",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "description": "The group of a radio item: one checked per name in the menu.",
+              "attribute": "name",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "checkable",
+              "description": "Whether type is checkbox or radio."
             }
           ],
           "events": [],
@@ -12401,7 +13704,12 @@
               "description": "Shortcut or badge."
             }
           ],
-          "cssParts": []
+          "cssParts": [
+            {
+              "name": "mark",
+              "description": "The check mark of a checkbox or radio item."
+            }
+          ]
         },
         {
           "kind": "class",
@@ -14485,7 +15793,7 @@
           "name": "RayCode",
           "tagName": "ray-code",
           "customElement": true,
-          "description": "The code comes from the code property, a <script type=\"text/plain\"> child (raw text: anything but a closing script tag), a <template> child (parsed as HTML: the easiest for markup, but a < that is not a tag, as in Promise<void>, breaks it), or the element's text; common indentation and blank edges are removed. Built-in languages: js/ts (jsx, tsx), json, html/xml/svg/vue, css, shell, ray and diff; others show as plain text. Library classes painted with the tokens: Prism's .token.*, highlight.js's .hljs-*, and Shiki's css-variables theme.",
+          "description": "The code comes from the code property, a <script type=\"text/plain\"> child (raw text: anything but a closing script tag), a <template> child (parsed as HTML: the easiest for markup, but a < that is not a tag, as in Promise<void>, breaks it), or the element's text; common indentation and blank edges are removed (not with verbatim). Built-in languages: js/ts (jsx, tsx), json, html/xml/svg/vue, css, shell, ray and diff; others show as plain text. Library classes painted with the tokens: Prism's .token.*, highlight.js's .hljs-*, and Shiki's css-variables theme.",
           "superclass": {
             "name": "RayElement"
           },
@@ -14529,6 +15837,14 @@
               },
               "description": "Wraps long lines instead of scrolling sideways.",
               "fieldName": "wrap"
+            },
+            {
+              "name": "verbatim",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Shows and copies the text exactly as given: no common indentation or blank first and last lines removed. For data (a response body, a log) rather than code written in the page.",
+              "fieldName": "verbatim"
             },
             {
               "name": "max-height",
@@ -14655,6 +15971,16 @@
               },
               "description": "Wraps long lines instead of scrolling sideways.",
               "attribute": "wrap",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "verbatim",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Shows and copies the text exactly as given: no common indentation or blank first and last lines removed. For data (a response body, a log) rather than code written in the page.",
+              "attribute": "verbatim",
               "reflects": true
             },
             {
@@ -19424,7 +20750,7 @@
               "type": {
                 "text": "string"
               },
-              "description": "A key: the size is saved in localStorage and restored.",
+              "description": "A key: the size and the collapsed state are saved in localStorage and restored (a saved state wins over the collapsed attribute).",
               "fieldName": "autosave"
             }
           ],
@@ -19498,7 +20824,7 @@
               "type": {
                 "text": "string"
               },
-              "description": "A key: the size is saved in localStorage and restored.",
+              "description": "A key: the size and the collapsed state are saved in localStorage and restored (a saved state wins over the collapsed attribute).",
               "attribute": "autosave",
               "reflects": false
             },

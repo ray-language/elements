@@ -811,6 +811,12 @@ export interface RayFileUploadEventMap extends HTMLElementEventMap {
 }
 
 // --- Input (input)
+/** A range of a field's text to mark (ray-input and ray-textarea highlight): offsets into the text, end excluded. */
+export type HighlightRange = { start: number; end: number; kind?: string; title?: string };
+/** A suggestion of a field's complete(): value is inserted; label (default: value) and detail are shown, description under them. */
+export type CompletionItem = { value: string; label?: string; detail?: string; description?: string };
+/** What complete() returns: the part of the text (offsets, to excluded) a suggestion replaces, and the suggestions. */
+export type CompletionResult = { from: number; to: number; items: CompletionItem[] };
 /** <ray-input> Also forwards placeholder, autocomplete, inputmode, pattern, min, max, step, minlength, maxlength, spellcheck, autocapitalize, enterkeyhint and list to the inner input. Enter submits its form as a native field does: through the first submit button (ray-button type="submit" included; nothing when it is disabled), or, without one, only when the form has a single text field. */
 export declare class RayInput extends FieldControl {
   /** Current value. The value attribute is the initial value (restored on form reset). */
@@ -841,8 +847,59 @@ export declare class RayInput extends FieldControl {
   radius: "xs" | "sm" | "md" | "lg" | "xl" | "full" | undefined;
   /** Box style. */
   variant: "default" | "filled" | "unstyled";
+  /** Marks ranges of the text, painted behind it: called with the text on every change (typed or set), it returns { start, end, kind?, title? } offsets. kind "error" is red with a wavy underline; any other kind is styled with ::part(highlight-<kind>); title is the tooltip over the range. Ranges must not overlap. */
+  highlight: ((text: string) => HighlightRange[]) | null;
+  /** Inline suggestions: called as the user types (and on Ctrl+Space) with the text and the caret, it returns the part of the text a suggestion would replace and the suggestions ({ from, to, items }), or null for none. A list opens under that part (ArrowUp/Down, Enter or Tab to accept, Escape to close); the chosen item's value replaces from–to as an undoable edit, then ray-complete fires. The field becomes a combobox (aria-autocomplete, aria-expanded, aria-activedescendant). */
+  complete: ((text: string, caret: number) => CompletionResult | null | Promise<CompletionResult | null>) | null;
+  /** Accessible name of the suggestion list. */
+  suggestionsLabel: string;
   /** Selects the text. */
   select(): void;
+  /** Runs highlight again, when what it marks changed but the text did not. */
+  refreshHighlight(): void;
+  addEventListener<K extends keyof RayInputEventMap>(type: K, listener: (this: RayInput, ev: RayInputEventMap[K]) => unknown, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+  removeEventListener<K extends keyof RayInputEventMap>(type: K, listener: (this: RayInput, ev: RayInputEventMap[K]) => unknown, options?: boolean | EventListenerOptions): void;
+  removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+export interface RayInputEventMap extends HTMLElementEventMap {
+  /** A suggestion was accepted (the text already has it). */
+  "ray-complete": CustomEvent<{ item: CompletionItem; from: number; to: number }>;
+}
+
+// --- Mode input (mode-input)
+/** A mode of ray-mode-input: hint is the trigger's short text ("€"), attrs the attributes it sets on the field. */
+export type ModeOption = { value: string; label: string; icon?: string; hint?: string; description?: string; disabled?: boolean; attrs?: Record<string, string> };
+/** <ray-mode-input> Declare the modes as <option> children (label, data-icon, data-hint, data-description, disabled, and data-set-<attribute> for each attribute the mode sets on the field) or with the options property. A mode's attributes replace the field's own while it is chosen and give them back after. The menu is a ray-menu of radio items in the field's shadow root; Alt+ArrowDown opens it from the field, and the trigger keeps the caret in the field. */
+export declare class RayModeInput extends RayInput {
+  /** The chosen mode's value (default: the first). Setting it applies that mode without ray-mode-change. */
+  mode: string | undefined;
+  /** The modes; when not set, the <option> children. */
+  options: ModeOption[] | undefined;
+  /** What the trigger shows: the mode's hint or label, its icon, or both. Default: the icon when the mode has one, else the label. */
+  display: "label" | "icon" | "both" | undefined;
+  /** The side of the field the trigger sits on. */
+  position: "start" | "end";
+  /** The trigger's accessible name, read with the current mode ("Mode: File"). */
+  menuLabel: string;
+  /** With a native host (a std/ui window with the bridge), the system's menu (no descriptions there). */
+  nativeMenu: boolean | undefined;
+  /** The modes in use. */
+  readonly modes: ModeOption[];
+  /** The chosen mode. */
+  readonly currentOption: ModeOption | null;
+  /** Chooses a mode as the user would (fires ray-mode-change). */
+  choose(value: string): void;
+  addEventListener<K extends keyof RayModeInputEventMap>(type: K, listener: (this: RayModeInput, ev: RayModeInputEventMap[K]) => unknown, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+  removeEventListener<K extends keyof RayModeInputEventMap>(type: K, listener: (this: RayModeInput, ev: RayModeInputEventMap[K]) => unknown, options?: boolean | EventListenerOptions): void;
+  removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+export interface RayModeInputEventMap extends HTMLElementEventMap {
+  /** The user chose a mode (mode is already the new one); cancelable: preventDefault keeps the previous mode. */
+  "ray-mode-change": CustomEvent<{ mode: string; previous: string | null; option: ModeOption }>;
+  /** A suggestion was accepted (the text already has it). */
+  "ray-complete": CustomEvent<{ item: CompletionItem; from: number; to: number }>;
 }
 
 // --- Number input (number-input)
@@ -901,6 +958,8 @@ export declare class RayPasswordInput extends RayInput {
 export interface RayPasswordInputEventMap extends HTMLElementEventMap {
   /** The user showed or hid the password. */
   "ray-visibility-change": CustomEvent<{ visible: boolean }>;
+  /** A suggestion was accepted (the text already has it). */
+  "ray-complete": CustomEvent<{ item: CompletionItem; from: number; to: number }>;
 }
 
 // --- Path input (path-input)
@@ -930,6 +989,8 @@ export declare class RayPathInput extends RayInput {
 export interface RayPathInputEventMap extends HTMLElementEventMap {
   /** The system dialog failed. */
   "ray-error": CustomEvent<{ error: Error }>;
+  /** A suggestion was accepted (the text already has it). */
+  "ray-complete": CustomEvent<{ item: CompletionItem; from: number; to: number }>;
 }
 
 // --- Radio group (radio)
@@ -1183,6 +1244,22 @@ export declare class RayTextarea extends FieldControl {
   size: "xs" | "sm" | "md" | "lg" | "xl";
   /** Box style. */
   variant: "default" | "filled" | "unstyled";
+  /** Marks ranges of the text, painted behind it: called with the text on every change (typed or set), it returns { start, end, kind?, title? } offsets. kind "error" is red with a wavy underline; any other kind is styled with ::part(highlight-<kind>); title is the tooltip over the range. Ranges must not overlap. */
+  highlight: ((text: string) => HighlightRange[]) | null;
+  /** Inline suggestions: called as the user types (and on Ctrl+Space) with the text and the caret, it returns the part of the text a suggestion would replace and the suggestions ({ from, to, items }), or null for none. A list opens under that part (ArrowUp/Down, Enter or Tab to accept, Escape to close); the chosen item's value replaces from–to as an undoable edit, then ray-complete fires. The field becomes a combobox (aria-autocomplete, aria-expanded, aria-activedescendant). */
+  complete: ((text: string, caret: number) => CompletionResult | null | Promise<CompletionResult | null>) | null;
+  /** Accessible name of the suggestion list. */
+  suggestionsLabel: string;
+  /** Runs highlight again, when what it marks changed but the text did not. */
+  refreshHighlight(): void;
+  addEventListener<K extends keyof RayTextareaEventMap>(type: K, listener: (this: RayTextarea, ev: RayTextareaEventMap[K]) => unknown, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+  removeEventListener<K extends keyof RayTextareaEventMap>(type: K, listener: (this: RayTextarea, ev: RayTextareaEventMap[K]) => unknown, options?: boolean | EventListenerOptions): void;
+  removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+export interface RayTextareaEventMap extends HTMLElementEventMap {
+  /** A suggestion was accepted (the text already has it). */
+  "ray-complete": CustomEvent<{ item: CompletionItem; from: number; to: number }>;
 }
 
 // --- Bottom nav (bottom-nav)
@@ -1263,6 +1340,42 @@ export declare class RayBreadcrumb extends RayElement {
   current: boolean | undefined;
 }
 
+// --- Document tabs (doc-tabs)
+/** <ray-doc-tabs> Unlike ray-tabs, a tab has no panel of its own: they all control the element named by panel, whose content the app fills for the selected one. Closing is the app's: the ×, a middle click or Delete/Backspace fire ray-request-close, and the app removes the tab (after asking about unsaved changes, if it must). When the selected tab is removed, the one at its place is selected (change) and, if the closed tab had the focus, focused. More tabs than width: the bar scrolls sideways, fades the edge that hides tabs (data-overflow-start / data-overflow-end on the host), scrolls with a vertical wheel and keeps the selected tab in view. */
+export declare class RayDocTabs extends RayElement {
+  /** Value of the selected tab (default: the first). */
+  value: string | undefined;
+  /** The id of the shared panel: it gets role=tabpanel and aria-labelledby the selected tab; the tabs get aria-controls. */
+  panel: string | undefined;
+  /** Accessible name of the tab list ("Open requests"). */
+  label: string | undefined;
+  /** Tooltip of the ×. */
+  closeLabel: string;
+  /** What assistive technology hears after the name of a dirty tab. */
+  dirtyLabel: string;
+  /** Its tabs, in order. */
+  readonly tabs: RayDocTab[];
+  /** The shared panel, found by the panel id. */
+  readonly panelElement: HTMLElement | null;
+  addEventListener<K extends keyof RayDocTabsEventMap>(type: K, listener: (this: RayDocTabs, ev: RayDocTabsEventMap[K]) => unknown, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+  removeEventListener<K extends keyof RayDocTabsEventMap>(type: K, listener: (this: RayDocTabs, ev: RayDocTabsEventMap[K]) => unknown, options?: boolean | EventListenerOptions): void;
+  removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+export interface RayDocTabsEventMap extends HTMLElementEventMap {
+  /** The × was clicked, the tab middle-clicked, or Delete/Backspace pressed on it: remove the tab to close it (not fired for hide-close tabs). */
+  "ray-request-close": CustomEvent<{ value: string; tab: RayDocTab; source: "button" | "middle" | "key" }>;
+}
+/** <ray-doc-tab> A document's tab: an icon or tag (slot left), its name (cut with an ellipsis; give the full one in title), and the × or the unsaved dot. */
+export declare class RayDocTab extends RayElement {
+  /** Identifies the document (ray-doc-tabs value). */
+  value: string | undefined;
+  /** Unsaved changes: a dot in place of the ×, which comes back under the pointer. */
+  dirty: boolean | undefined;
+  /** Cannot be closed: no ×, no middle click, no Delete. */
+  hideClose: boolean | undefined;
+}
+
 // --- Nav link (nav-link)
 /** <ray-nav-link> A link with href (aria-current=page when active), or a button that toggles its nested links. */
 export declare class RayNavLink extends RayElement {
@@ -1340,8 +1453,10 @@ export declare class RayPagination extends RayElement {
 // --- Sidebar (sidebar)
 /** <ray-sidebar> Put ray-sidebar-group + ray-nav-link (with an icon in slot=left) inside. Collapsed, nav links show only their icon (the label becomes the tooltip) and the host has the collapsed attribute, so your own header/footer content can hide with CSS (ray-sidebar[collapsed] .brand-name { display: none }). */
 export declare class RaySidebar extends RayElement {
-  /** Wide screens: an icon rail instead of the full panel. */
+  /** Wide screens: collapsed as collapse says (an icon rail, or out of view). */
   collapsed: boolean | undefined;
+  /** What collapsed does on wide screens: icon, a rail of the nav links' icons; offcanvas, hidden entirely (no width, out of the tab order). */
+  collapse: "icon" | "offcanvas";
   /** Narrow screens: the drawer is shown (modal, focus trapped; Escape, backdrop click or a followed link close it). */
   open: boolean | undefined;
   /** The edge it sits on (its border faces the content, its narrow-screen drawer slides from there): start/end follow the writing direction; left/right are sides of the screen. */
@@ -1356,6 +1471,16 @@ export declare class RaySidebar extends RayElement {
   breakpoint: string;
   /** Accessible name of its navigation. */
   label: string;
+  /** Wide screens, expanded: its inner edge drags (or, focused, arrow-keys; Shift is faster, Home/End go to the limits) the width between min-width and max-width. */
+  resizable: boolean | undefined;
+  /** Narrowest width when resizing, in px. */
+  minWidth: number;
+  /** Widest width when resizing, in px. */
+  maxWidth: number;
+  /** A key: the resized width is saved in localStorage and restored. A later change of width wins. */
+  autosave: string | undefined;
+  /** Accessible name of the resize edge. */
+  resizeLabel: string;
   /** Collapses/expands on wide screens; opens/closes the drawer on narrow ones. */
   toggle(): void;
   /** Whether it is in drawer mode (at or below the breakpoint). */
@@ -1366,6 +1491,8 @@ export declare class RaySidebar extends RayElement {
   removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
 }
 export interface RaySidebarEventMap extends HTMLElementEventMap {
+  /** After a drag or a key resized it (resizable). */
+  "ray-resize": CustomEvent<{ width: number }>;
   /** After toggle(). */
   "ray-toggle": CustomEvent<{ collapsed: boolean; open: boolean; mobile: boolean }>;
   /** The drawer opened (narrow screens). */
@@ -1424,7 +1551,7 @@ export declare class RayStep extends RayElement {
 }
 
 // --- Tabs (tabs)
-/** <ray-tabs> Tabs and panels (WAI-ARIA tabs pattern): arrows, Home/End, automatic or manual activation. */
+/** <ray-tabs> More tabs than width: the list scrolls sideways, fades the edge that hides tabs, scrolls with a vertical wheel and keeps the selected tab in view. The host then carries data-overflow-start and data-overflow-end (following the writing direction), to style it further. */
 export declare class RayTabs extends RayElement {
   /** Value of the active tab (default: the first enabled one). */
   value: string | undefined;
@@ -1434,6 +1561,8 @@ export declare class RayTabs extends RayElement {
   orientation: "horizontal" | "vertical";
   /** Active indicator color. */
   color: string | undefined;
+  /** Height, font size and padding of the tabs (xs for a compact bar). */
+  size: "xs" | "sm" | "md" | "lg" | "xl";
   /** manual: arrows move focus, Enter/Space activates. */
   activation: "auto" | "manual";
   /** Tabs share the full width. */
@@ -1449,6 +1578,8 @@ export declare class RayTab extends RayElement {
   value: string | undefined;
   /** Cannot be activated. */
   disabled: boolean | undefined;
+  /** A small number after the label ("3", "99+"), lighter than a badge; part of the tab's accessible name. Empty: none. */
+  count: string | undefined;
 }
 /** <ray-tab-panel> Tabs and panels (WAI-ARIA tabs pattern): arrows, Home/End, automatic or manual activation. */
 export declare class RayTabPanel extends RayElement {
@@ -1457,8 +1588,8 @@ export declare class RayTabPanel extends RayElement {
 }
 
 // --- Command palette (command-palette)
-/** An action of ray-command-palette. */
-export type CommandAction = { id?: string; label: string; description?: string; group?: string; keywords?: string | string[]; shortcut?: string; icon?: string | Node; disabled?: boolean; native?: boolean; tag?: string; onSelect?: (action: CommandAction) => void };
+/** An action of ray-command-palette. icon is a 1.25rem square (a registered icon name, text or a Node); prefix is content of any width before the label (text or a Node, e.g. a ray-badge with an HTTP method), not searched. */
+export type CommandAction = { id?: string; label: string; description?: string; group?: string; keywords?: string | string[]; shortcut?: string; icon?: string | Node; prefix?: string | Node; disabled?: boolean; native?: boolean; tag?: string; onSelect?: (action: CommandAction) => void };
 /** How well an action matches a query (0 = not at all). */
 export declare function score(action: CommandAction, query: string): number;
 /** <ray-command-palette> Running an action fires ray-select and calls its onSelect. The best matches come first, grouped. */
@@ -1481,6 +1612,12 @@ export declare class RayCommandPalette extends RayElement {
   label: string;
   /** No keyboard hint at the bottom. */
   hideHint: boolean | undefined;
+  /** The keyboard hint's word for ↑↓. */
+  navigateLabel: string;
+  /** The keyboard hint's word for ↵. */
+  runLabel: string;
+  /** The keyboard hint's word for esc. */
+  closeLabel: string;
   /** With a native host (ray-elements/core/raylang.js in a std/ui window, menus declared with elements/bridge), also lists the app's menu bar, grouped by menu with its shortcuts; running one gives the program the menu's own event. */
   nativeMenus: boolean | undefined;
   /** Blur of the page behind: px ("8"), a CSS length or "none". Default: --ray-overlay-blur ([overlay] blur in tokens.toml). */
@@ -1630,6 +1767,8 @@ export declare class RayMenu extends Floating {
 export interface RayMenuEventMap extends HTMLElementEventMap {
   /** An item was chosen; detail: { value, item }. */
   "ray-select": CustomEvent<{ value: string; item: RayMenuItem }>;
+  /** Its trigger is about to open it (click, Arrow keys, right click), before the items are read, native menu included: fill items that depend on what was clicked here. Cancelable (preventDefault keeps it closed). Not fired by show() or open = true. detail: { event }. */
+  "ray-request-open": CustomEvent<{ event: Event }>;
   /** After it opened. */
   "ray-open": CustomEvent<unknown>;
   /** After it closed. */
@@ -1643,6 +1782,14 @@ export declare class RayMenuItem extends RayElement {
   disabled: boolean | undefined;
   /** Text and hover color (e.g. red for destructive actions). */
   color: string | undefined;
+  /** checkbox: choosing it toggles checked (menuitemcheckbox); radio: choosing it checks it and unchecks the radio items of the menu with the same name (menuitemradio). Both show a check mark when checked, in the native menu too. */
+  type: "item" | "checkbox" | "radio";
+  /** Checked (checkbox and radio items). Already updated when ray-select fires. */
+  checked: boolean | undefined;
+  /** The group of a radio item: one checked per name in the menu. */
+  name: string | undefined;
+  /** Whether type is checkbox or radio. */
+  readonly checkable: boolean;
 }
 /** <ray-menu-label> A section caption inside the menu. */
 export declare class RayMenuLabel extends RayElement {
@@ -1890,7 +2037,7 @@ export declare class RayCarousel extends RayElement {
 export declare function setHighlighter(fn: ((code: string, lang: string) => string | Node | null | undefined | Promise<string | Node | null | undefined>) | null): void;
 /** The built-in highlighter: tokens of type keyword, string, number, comment, function, type, tag, attr, punctuation or text. */
 export declare function tokenize(code: string, lang?: string): [type: string, text: string][];
-/** <ray-code> The code comes from the code property, a <script type="text/plain"> child (raw text: anything but a closing script tag), a <template> child (parsed as HTML: the easiest for markup, but a < that is not a tag, as in Promise<void>, breaks it), or the element's text; common indentation and blank edges are removed. Built-in languages: js/ts (jsx, tsx), json, html/xml/svg/vue, css, shell, ray and diff; others show as plain text. Library classes painted with the tokens: Prism's .token.*, highlight.js's .hljs-*, and Shiki's css-variables theme. */
+/** <ray-code> The code comes from the code property, a <script type="text/plain"> child (raw text: anything but a closing script tag), a <template> child (parsed as HTML: the easiest for markup, but a < that is not a tag, as in Promise<void>, breaks it), or the element's text; common indentation and blank edges are removed (not with verbatim). Built-in languages: js/ts (jsx, tsx), json, html/xml/svg/vue, css, shell, ray and diff; others show as plain text. Library classes painted with the tokens: Prism's .token.*, highlight.js's .hljs-*, and Shiki's css-variables theme. */
 export declare class RayCode extends RayElement {
   /** The code, from script (the most convenient in React and Vue). Wins over the content. */
   code: string | undefined;
@@ -1904,6 +2051,8 @@ export declare class RayCode extends RayElement {
   highlight: string | undefined;
   /** Wraps long lines instead of scrolling sideways. */
   wrap: boolean | undefined;
+  /** Shows and copies the text exactly as given: no common indentation or blank first and last lines removed. For data (a response body, a log) rather than code written in the page. */
+  verbatim: boolean | undefined;
   /** Height before it scrolls: px as a number, or a CSS length. A taller block gets a "Show all N lines" button. */
   maxHeight: string | undefined;
   /** Shown whole, past max-height. */
@@ -2481,7 +2630,7 @@ export declare class RaySplit extends RayElement {
   collapsed: boolean | undefined;
   /** The divider cannot be moved. */
   disabled: boolean | undefined;
-  /** A key: the size is saved in localStorage and restored. */
+  /** A key: the size and the collapsed state are saved in localStorage and restored (a saved state wins over the collapsed attribute). */
   autosave: string | undefined;
   /** The start pane's size in px. */
   readonly size: number;
@@ -2557,6 +2706,7 @@ declare global {
     "ray-calendar": RayCalendar;
     "ray-file-upload": RayFileUpload;
     "ray-input": RayInput;
+    "ray-mode-input": RayModeInput;
     "ray-number-input": RayNumberInput;
     "ray-password-input": RayPasswordInput;
     "ray-path-input": RayPathInput;
@@ -2573,6 +2723,8 @@ declare global {
     "ray-bottom-nav-item": RayBottomNavItem;
     "ray-breadcrumbs": RayBreadcrumbs;
     "ray-breadcrumb": RayBreadcrumb;
+    "ray-doc-tabs": RayDocTabs;
+    "ray-doc-tab": RayDocTab;
     "ray-nav-link": RayNavLink;
     "ray-pagination": RayPagination;
     "ray-sidebar": RaySidebar;

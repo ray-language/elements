@@ -3,13 +3,25 @@
 // Tabs and panels are light-DOM children, so their roles, ids,
 // aria-controls and aria-labelledby work as plain attributes. A tab and its
 // panel share a `value`.
+//
+// Too many tabs for the width: the list scrolls sideways, fades the edge that
+// hides tabs (the host carries data-overflow-start / data-overflow-end), turns
+// a vertical wheel into a sideways scroll and keeps the selected tab in view.
 
 import { RayElement, css, define, uid } from "../../core/core.js";
 import { inlineKey } from "../../core/direction.js";
+import { SideScroller, sideScrollerStyles } from "../../core/scroll.js";
 import { applyColor } from "../../core/styles.js";
 
 const tabsStyles = css`
   :host { display: block; }
+  /* The size scale, inherited by the ray-tab children (own names: they reach
+     the panels' content too). */
+  :host { --_tab-h: var(--ray-control-height-sm); --_tab-fs: var(--ray-font-size-sm); --_tab-px: var(--ray-space-4); --_tab-gap: var(--ray-space-2); }
+  :host([size="xs"]) { --_tab-h: var(--ray-control-height-xs); --_tab-fs: var(--ray-font-size-xs); --_tab-px: var(--ray-space-3); --_tab-gap: var(--ray-space-1); }
+  :host([size="md"]) { --_tab-h: var(--ray-control-height-md); --_tab-fs: var(--ray-font-size-md); --_tab-px: var(--ray-space-5); }
+  :host([size="lg"]) { --_tab-h: var(--ray-control-height-lg); --_tab-fs: var(--ray-font-size-lg); --_tab-px: var(--ray-space-6); --_tab-gap: var(--ray-space-3); }
+  :host([size="xl"]) { --_tab-h: var(--ray-control-height-xl); --_tab-fs: var(--ray-font-size-xl); --_tab-px: var(--ray-space-8); --_tab-gap: var(--ray-space-3); }
   :host([orientation="vertical"]) { display: flex; gap: var(--ray-space-4); }
   /* Too many tabs for the width: the list scrolls sideways instead of
      wrapping (a wrapped underline reads as two separate tab bars). The
@@ -42,8 +54,9 @@ export class RayTabs extends RayElement {
     color: { type: String, reflect: true },
     activation: { type: String, default: "auto" },
     grow: { type: Boolean, reflect: true },
+    size: { type: String, reflect: true, default: "sm" },
   };
-  static styles = [tabsStyles];
+  static styles = [sideScrollerStyles, tabsStyles];
   static template = `<div class="list" part="list" role="tablist"><slot name="tab"></slot></div><div class="panels" part="panels"><slot></slot></div>`;
 
   constructor() {
@@ -56,6 +69,20 @@ export class RayTabs extends RayElement {
     for (const slot of this.shadowRoot.querySelectorAll("slot")) {
       slot.addEventListener("slotchange", () => this.requestUpdate());
     }
+    this._scroller = new SideScroller(this, this.$(".list"), {
+      active: () => this.orientation !== "vertical",
+      onResize: () => this.requestUpdate(),
+    });
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this._scroller.connect();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this._scroller.disconnect();
   }
 
   get tabs() {
@@ -99,6 +126,11 @@ export class RayTabs extends RayElement {
       panel.tabIndex = 0;
       panel.hidden = panel.value !== this.value;
     }
+    // Once laid out: a list with no width yet tries again on the next update.
+    if (this.value !== this._revealed && this._scroller.reveal(tabs.find((t) => t.value === this.value))) {
+      this._revealed = this.value;
+    }
+    this._scroller.update();
   }
 
   _select(tab, user) {
@@ -139,10 +171,10 @@ const tabStyles = css`
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--ray-space-2);
-    min-height: var(--ray-control-height-sm);
-    padding: 0 var(--ray-space-4);
-    font-size: var(--ray-font-size-sm);
+    gap: var(--_tab-gap, var(--ray-space-2));
+    min-height: var(--_tab-h, var(--ray-control-height-sm));
+    padding: 0 var(--_tab-px, var(--ray-space-4));
+    font-size: var(--_tab-fs, var(--ray-font-size-sm));
     font-weight: var(--ray-font-weight-medium);
     color: var(--ray-muted-foreground);
     white-space: nowrap;
@@ -177,15 +209,20 @@ const tabStyles = css`
   .section { display: inline-flex; }
   .section:not([data-filled]) { display: none; }
   ::slotted(svg) { width: 1rem; height: 1rem; }
+  /* count: a small number after the label, lighter than a badge. */
+  .count { font-size: 0.85em; font-variant-numeric: tabular-nums; color: var(--ray-muted-foreground); }
+  .count:empty { display: none; }
+  :host([data-active]) .count, :host(:hover) .count { color: inherit; opacity: 0.75; }
 `;
 
 export class RayTab extends RayElement {
   static properties = {
     value: { type: String, reflect: true },
     disabled: { type: Boolean, reflect: true },
+    count: { type: String, reflect: true },
   };
   static styles = [tabStyles];
-  static template = `<span class="section" part="left-section"><slot name="left"></slot></span><slot></slot><span class="section" part="right-section"><slot name="right"></slot></span>`;
+  static template = `<span class="section" part="left-section"><slot name="left"></slot></span><slot></slot><span class="count" part="count"></span><span class="section" part="right-section"><slot name="right"></slot></span>`;
 
   constructor() {
     super();
@@ -201,6 +238,7 @@ export class RayTab extends RayElement {
   }
 
   update(changed) {
+    this.$(".count").textContent = this.count ?? "";
     if (changed.has("value") || changed.has("disabled")) this.closest("ray-tabs")?.requestUpdate();
   }
 }

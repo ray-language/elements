@@ -1600,6 +1600,242 @@
           ]
         },
         {
+          "name": "suggestions-label",
+          "description": "Accessible name of the suggestion list."
+        },
+        {
+          "name": "autocomplete",
+          "description": "Forwarded to the inner input."
+        },
+        {
+          "name": "inputmode",
+          "description": "Virtual keyboard hint."
+        },
+        {
+          "name": "pattern",
+          "description": "Validation pattern (regular expression)."
+        },
+        {
+          "name": "min",
+          "description": "Minimum (number/date types)."
+        },
+        {
+          "name": "max",
+          "description": "Maximum (number/date types)."
+        },
+        {
+          "name": "step",
+          "description": "Step (number types)."
+        },
+        {
+          "name": "minlength",
+          "description": "Minimum length."
+        },
+        {
+          "name": "maxlength",
+          "description": "Maximum length."
+        },
+        {
+          "name": "autocapitalize",
+          "description": "Mobile auto-capitalization."
+        },
+        {
+          "name": "enterkeyhint",
+          "description": "Label of the Enter key on virtual keyboards."
+        },
+        {
+          "name": "list",
+          "description": "Id of a <datalist> with suggestions."
+        }
+      ]
+    },
+    {
+      "name": "ray-mode-input",
+      "description": "Declare the modes as <option> children (label, data-icon, data-hint, data-description, disabled, and data-set-<attribute> for each attribute the mode sets on the field) or with the options property. A mode's attributes replace the field's own while it is chosen and give them back after. The menu is a ray-menu of radio items in the field's shadow root; Alt+ArrowDown opens it from the field, and the trigger keeps the caret in the field.",
+      "attributes": [
+        {
+          "name": "mode",
+          "description": "The chosen mode's value (default: the first). Setting it applies that mode without ray-mode-change."
+        },
+        {
+          "name": "display",
+          "description": "What the trigger shows: the mode's hint or label, its icon, or both. Default: the icon when the mode has one, else the label.",
+          "values": [
+            {
+              "name": "label"
+            },
+            {
+              "name": "icon"
+            },
+            {
+              "name": "both"
+            }
+          ]
+        },
+        {
+          "name": "position",
+          "description": "The side of the field the trigger sits on.",
+          "values": [
+            {
+              "name": "start"
+            },
+            {
+              "name": "end"
+            }
+          ]
+        },
+        {
+          "name": "menu-label",
+          "description": "The trigger's accessible name, read with the current mode (\"Mode: File\")."
+        },
+        {
+          "name": "native-menu",
+          "description": "With a native host (a std/ui window with the bridge), the system's menu (no descriptions there).",
+          "valueSet": "v"
+        },
+        {
+          "name": "value",
+          "description": "Current value. The value attribute is the initial value (restored on form reset)."
+        },
+        {
+          "name": "type",
+          "description": "Input type.",
+          "values": [
+            {
+              "name": "text"
+            },
+            {
+              "name": "email"
+            },
+            {
+              "name": "password"
+            },
+            {
+              "name": "search"
+            },
+            {
+              "name": "number"
+            },
+            {
+              "name": "url"
+            },
+            {
+              "name": "tel"
+            }
+          ]
+        },
+        {
+          "name": "name",
+          "description": "Form field name."
+        },
+        {
+          "name": "label",
+          "description": "Visible label (also the accessible name)."
+        },
+        {
+          "name": "description",
+          "description": "Help text under the label."
+        },
+        {
+          "name": "description-position",
+          "description": "The description before the control (help first) or after it, with the error (fields in a row stay aligned).",
+          "values": [
+            {
+              "name": "above"
+            },
+            {
+              "name": "below"
+            }
+          ]
+        },
+        {
+          "name": "error",
+          "description": "Error text; marks the field invalid (display only — does not block submit)."
+        },
+        {
+          "name": "placeholder",
+          "description": "Placeholder text."
+        },
+        {
+          "name": "required",
+          "description": "Required for form submission; shows an asterisk.",
+          "valueSet": "v"
+        },
+        {
+          "name": "disabled",
+          "description": "Not editable nor submitted.",
+          "valueSet": "v"
+        },
+        {
+          "name": "readonly",
+          "description": "Not editable, still submitted.",
+          "valueSet": "v"
+        },
+        {
+          "name": "size",
+          "description": "Height and font size.",
+          "values": [
+            {
+              "name": "xs"
+            },
+            {
+              "name": "sm"
+            },
+            {
+              "name": "md"
+            },
+            {
+              "name": "lg"
+            },
+            {
+              "name": "xl"
+            }
+          ]
+        },
+        {
+          "name": "radius",
+          "description": "Corner radius.",
+          "values": [
+            {
+              "name": "xs"
+            },
+            {
+              "name": "sm"
+            },
+            {
+              "name": "md"
+            },
+            {
+              "name": "lg"
+            },
+            {
+              "name": "xl"
+            },
+            {
+              "name": "full"
+            }
+          ]
+        },
+        {
+          "name": "variant",
+          "description": "Box style.",
+          "values": [
+            {
+              "name": "default"
+            },
+            {
+              "name": "filled"
+            },
+            {
+              "name": "unstyled"
+            }
+          ]
+        },
+        {
+          "name": "suggestions-label",
+          "description": "Accessible name of the suggestion list."
+        },
+        {
           "name": "autocomplete",
           "description": "Forwarded to the inner input."
         },
@@ -1982,6 +2218,10 @@
           ]
         },
         {
+          "name": "suggestions-label",
+          "description": "Accessible name of the suggestion list."
+        },
+        {
           "name": "autocomplete",
           "description": "Forwarded to the inner input."
         },
@@ -2195,6 +2435,10 @@
               "name": "unstyled"
             }
           ]
+        },
+        {
+          "name": "suggestions-label",
+          "description": "Accessible name of the suggestion list."
         },
         {
           "name": "autocomplete",
@@ -3167,6 +3411,10 @@
           ]
         },
         {
+          "name": "suggestions-label",
+          "description": "Accessible name of the suggestion list."
+        },
+        {
           "name": "radius",
           "description": "Corner radius.",
           "values": [
@@ -3524,6 +3772,52 @@
       ]
     },
     {
+      "name": "ray-doc-tabs",
+      "description": "Unlike ray-tabs, a tab has no panel of its own: they all control the element named by panel, whose content the app fills for the selected one. Closing is the app's: the ×, a middle click or Delete/Backspace fire ray-request-close, and the app removes the tab (after asking about unsaved changes, if it must). When the selected tab is removed, the one at its place is selected (change) and, if the closed tab had the focus, focused. More tabs than width: the bar scrolls sideways, fades the edge that hides tabs (data-overflow-start / data-overflow-end on the host), scrolls with a vertical wheel and keeps the selected tab in view.",
+      "attributes": [
+        {
+          "name": "value",
+          "description": "Value of the selected tab (default: the first)."
+        },
+        {
+          "name": "panel",
+          "description": "The id of the shared panel: it gets role=tabpanel and aria-labelledby the selected tab; the tabs get aria-controls."
+        },
+        {
+          "name": "label",
+          "description": "Accessible name of the tab list (\"Open requests\")."
+        },
+        {
+          "name": "close-label",
+          "description": "Tooltip of the ×."
+        },
+        {
+          "name": "dirty-label",
+          "description": "What assistive technology hears after the name of a dirty tab."
+        }
+      ]
+    },
+    {
+      "name": "ray-doc-tab",
+      "description": "A document's tab: an icon or tag (slot left), its name (cut with an ellipsis; give the full one in title), and the × or the unsaved dot.",
+      "attributes": [
+        {
+          "name": "value",
+          "description": "Identifies the document (ray-doc-tabs value)."
+        },
+        {
+          "name": "dirty",
+          "description": "Unsaved changes: a dot in place of the ×, which comes back under the pointer.",
+          "valueSet": "v"
+        },
+        {
+          "name": "hide-close",
+          "description": "Cannot be closed: no ×, no middle click, no Delete.",
+          "valueSet": "v"
+        }
+      ]
+    },
+    {
       "name": "ray-nav-link",
       "description": "A link with href (aria-current=page when active), or a button that toggles its nested links.",
       "attributes": [
@@ -3676,8 +3970,20 @@
       "attributes": [
         {
           "name": "collapsed",
-          "description": "Wide screens: an icon rail instead of the full panel.",
+          "description": "Wide screens: collapsed as collapse says (an icon rail, or out of view).",
           "valueSet": "v"
+        },
+        {
+          "name": "collapse",
+          "description": "What collapsed does on wide screens: icon, a rail of the nav links' icons; offcanvas, hidden entirely (no width, out of the tab order).",
+          "values": [
+            {
+              "name": "icon"
+            },
+            {
+              "name": "offcanvas"
+            }
+          ]
         },
         {
           "name": "open",
@@ -3729,6 +4035,27 @@
         {
           "name": "label",
           "description": "Accessible name of its navigation."
+        },
+        {
+          "name": "resizable",
+          "description": "Wide screens, expanded: its inner edge drags (or, focused, arrow-keys; Shift is faster, Home/End go to the limits) the width between min-width and max-width.",
+          "valueSet": "v"
+        },
+        {
+          "name": "min-width",
+          "description": "Narrowest width when resizing, in px."
+        },
+        {
+          "name": "max-width",
+          "description": "Widest width when resizing, in px."
+        },
+        {
+          "name": "autosave",
+          "description": "A key: the resized width is saved in localStorage and restored. A later change of width wins."
+        },
+        {
+          "name": "resize-label",
+          "description": "Accessible name of the resize edge."
         }
       ]
     },
@@ -3850,7 +4177,7 @@
     },
     {
       "name": "ray-tabs",
-      "description": "Tabs and panels (WAI-ARIA tabs pattern): arrows, Home/End, automatic or manual activation.",
+      "description": "More tabs than width: the list scrolls sideways, fades the edge that hides tabs, scrolls with a vertical wheel and keeps the selected tab in view. The host then carries data-overflow-start and data-overflow-end (following the writing direction), to style it further.",
       "attributes": [
         {
           "name": "value",
@@ -3888,6 +4215,27 @@
           "description": "Active indicator color."
         },
         {
+          "name": "size",
+          "description": "Height, font size and padding of the tabs (xs for a compact bar).",
+          "values": [
+            {
+              "name": "xs"
+            },
+            {
+              "name": "sm"
+            },
+            {
+              "name": "md"
+            },
+            {
+              "name": "lg"
+            },
+            {
+              "name": "xl"
+            }
+          ]
+        },
+        {
           "name": "activation",
           "description": "manual: arrows move focus, Enter/Space activates.",
           "values": [
@@ -3918,6 +4266,10 @@
           "name": "disabled",
           "description": "Cannot be activated.",
           "valueSet": "v"
+        },
+        {
+          "name": "count",
+          "description": "A small number after the label (\"3\", \"99+\"), lighter than a badge; part of the tab's accessible name. Empty: none."
         }
       ]
     },
@@ -3968,6 +4320,18 @@
           "name": "hide-hint",
           "description": "No keyboard hint at the bottom.",
           "valueSet": "v"
+        },
+        {
+          "name": "navigate-label",
+          "description": "The keyboard hint's word for ↑↓."
+        },
+        {
+          "name": "run-label",
+          "description": "The keyboard hint's word for ↵."
+        },
+        {
+          "name": "close-label",
+          "description": "The keyboard hint's word for esc."
         },
         {
           "name": "native-menus",
@@ -4224,6 +4588,30 @@
         {
           "name": "color",
           "description": "Text and hover color (e.g. red for destructive actions)."
+        },
+        {
+          "name": "type",
+          "description": "checkbox: choosing it toggles checked (menuitemcheckbox); radio: choosing it checks it and unchecks the radio items of the menu with the same name (menuitemradio). Both show a check mark when checked, in the native menu too.",
+          "values": [
+            {
+              "name": "item"
+            },
+            {
+              "name": "checkbox"
+            },
+            {
+              "name": "radio"
+            }
+          ]
+        },
+        {
+          "name": "checked",
+          "description": "Checked (checkbox and radio items). Already updated when ray-select fires.",
+          "valueSet": "v"
+        },
+        {
+          "name": "name",
+          "description": "The group of a radio item: one checked per name in the menu."
         }
       ]
     },
@@ -4998,7 +5386,7 @@
     },
     {
       "name": "ray-code",
-      "description": "The code comes from the code property, a <script type=\"text/plain\"> child (raw text: anything but a closing script tag), a <template> child (parsed as HTML: the easiest for markup, but a < that is not a tag, as in Promise<void>, breaks it), or the element's text; common indentation and blank edges are removed. Built-in languages: js/ts (jsx, tsx), json, html/xml/svg/vue, css, shell, ray and diff; others show as plain text. Library classes painted with the tokens: Prism's .token.*, highlight.js's .hljs-*, and Shiki's css-variables theme.",
+      "description": "The code comes from the code property, a <script type=\"text/plain\"> child (raw text: anything but a closing script tag), a <template> child (parsed as HTML: the easiest for markup, but a < that is not a tag, as in Promise<void>, breaks it), or the element's text; common indentation and blank edges are removed (not with verbatim). Built-in languages: js/ts (jsx, tsx), json, html/xml/svg/vue, css, shell, ray and diff; others show as plain text. Library classes painted with the tokens: Prism's .token.*, highlight.js's .hljs-*, and Shiki's css-variables theme.",
       "attributes": [
         {
           "name": "language",
@@ -5020,6 +5408,11 @@
         {
           "name": "wrap",
           "description": "Wraps long lines instead of scrolling sideways.",
+          "valueSet": "v"
+        },
+        {
+          "name": "verbatim",
+          "description": "Shows and copies the text exactly as given: no common indentation or blank first and last lines removed. For data (a response body, a log) rather than code written in the page.",
           "valueSet": "v"
         },
         {
@@ -6985,7 +7378,7 @@
         },
         {
           "name": "autosave",
-          "description": "A key: the size is saved in localStorage and restored."
+          "description": "A key: the size and the collapsed state are saved in localStorage and restored (a saved state wins over the collapsed attribute)."
         }
       ]
     },

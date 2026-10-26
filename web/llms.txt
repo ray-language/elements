@@ -1,6 +1,6 @@
 # ray-elements
 
-> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.8.0.
+> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.9.0.
 
 ray-elements is a design system of standard web components (custom elements
 with Shadow DOM, no dependencies): `<ray-button>`, `<ray-input>`,
@@ -256,7 +256,9 @@ fn run() -> Result<int, string> {
 
 With the bridge: `<ray-file-upload native>` and `<ray-path-input>` use the
 system file dialogs and give real paths, `confirmDialog()` asks with the
-system dialog, `<ray-menu native>` opens a native context menu,
+system dialog, `<ray-menu native>` opens a native context menu (fill
+items that depend on the click in its `ray-request-open`, not in your own
+`contextmenu` listener),
 `<ray-command-palette native-menus>` runs the app's menu bar
 (`bridge.menu`, `bridge.route`), `ray-app-shell` becomes the title bar of a
 `full_content` window, and `trackEdits(form)` shows the unsaved mark. The
@@ -293,6 +295,7 @@ Members whose name starts with `_` are internal.
 - [Date picker](https://elements.raylang.dev/components/date-picker.md): `<ray-date-picker>`, `<ray-calendar>` (Inputs). A date field with a calendar dropdown, and the calendar on its own.
 - [File upload](https://elements.raylang.dev/components/file-upload.md): `<ray-file-upload>` (Inputs). A drop zone to pick files: drag, click, keyboard or paste.
 - [Input](https://elements.raylang.dev/components/input.md): `<ray-input>` (Inputs). A text field with label, description and error (Mantine's TextInput).
+- [Mode input](https://elements.raylang.dev/components/mode-input.md): `<ray-mode-input>` (Inputs). A text field with a menu of modes on one side: choosing a mode applies its attributes to the field (type, placeholder, inputmode, pattern…), so one control says what a value is and the value — a file path or text, an amount in € or $, a search by name or ID.
 - [Number input](https://elements.raylang.dev/components/number-input.md): `<ray-number-input>` (Inputs). A number field (Mantine's NumberInput): + and − buttons (hold to repeat), arrow keys, min, max and step, fixed decimals, a prefix and a suffix, a thousands separator, or a duration (m:ss).
 - [Password input](https://elements.raylang.dev/components/password-input.md): `<ray-password-input>` (Inputs). A password field with a button that shows or hides what was typed (Mantine's PasswordInput).
 - [Path input](https://elements.raylang.dev/components/path-input.md): `<ray-path-input>` (Inputs). A field for a path on disk: a file to open, a folder, or where to save.
@@ -305,9 +308,10 @@ Members whose name starts with `_` are internal.
 - [Textarea](https://elements.raylang.dev/components/textarea.md): `<ray-textarea>` (Inputs). A multi-line text field that can grow with its content.
 - [Bottom nav](https://elements.raylang.dev/components/bottom-nav.md): `<ray-bottom-nav>`, `<ray-bottom-nav-item>` (Navigation). The bottom navigation of a phone app (Material's navigation bar, the iOS tab bar): three to five destinations with an icon, a label and a badge, the current one marked by a pill.
 - [Breadcrumbs](https://elements.raylang.dev/components/breadcrumbs.md): `<ray-breadcrumbs>`, `<ray-breadcrumb>` (Navigation). Where a page sits (Mantine's Breadcrumbs, the WAI-ARIA breadcrumb pattern): links in a labelled nav, the last one the current page.
+- [Document tabs](https://elements.raylang.dev/components/doc-tabs.md): `<ray-doc-tabs>`, `<ray-doc-tab>` (Navigation). The tabs of open documents (an editor's, a browser's): closable, with an unsaved mark, all over one shared panel; WAI-ARIA tabs with arrows, Home/End and Delete to close.
 - [Nav link](https://elements.raylang.dev/components/nav-link.md): `<ray-nav-link>` (Navigation). A sidebar/navigation item: icon, label, description, badge, active state, and nested nav links that collapse under it.
 - [Pagination](https://elements.raylang.dev/components/pagination.md): `<ray-pagination>` (Navigation). Page navigation: previous/next, optional first/last, page numbers with ellipses; the number of items stays constant so it does not jump.
-- [Sidebar](https://elements.raylang.dev/components/sidebar.md): `<ray-sidebar>`, `<ray-sidebar-group>` (Navigation). The side navigation of an app shell: header, content and footer; on wide screens it collapses to an icon rail, below a breakpoint it becomes an off-canvas drawer.
+- [Sidebar](https://elements.raylang.dev/components/sidebar.md): `<ray-sidebar>`, `<ray-sidebar-group>` (Navigation). The side navigation of an app shell: header, content and footer; on wide screens it collapses to an icon rail (or out of view), below a breakpoint it becomes an off-canvas drawer.
 - [Stepper](https://elements.raylang.dev/components/stepper.md): `<ray-stepper>`, `<ray-step>` (Navigation). A task in steps (Mantine's Stepper): a wizard, a checkout, an onboarding.
 - [Tabs](https://elements.raylang.dev/components/tabs.md): `<ray-tabs>`, `<ray-tab>`, `<ray-tab-panel>` (Navigation). Tabs and panels (WAI-ARIA tabs pattern): arrows, Home/End, automatic or manual activation.
 - [Command palette](https://elements.raylang.dev/components/command-palette.md): `<ray-command-palette>` (Overlays). Search and run actions from the keyboard (Mantine's Spotlight): fuzzy search, groups, shortcuts, ⌘K / Ctrl+K; combobox + listbox pattern in a modal dialog.

@@ -1,6 +1,6 @@
 {
   "name": "@raylang/elements",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Web components for any app, with raylang extras (shadcn/ui + Mantine inspired)",
   "license": "Apache-2.0",
   "keywords": ["web-components", "custom-elements", "design-system", "ui", "raylang"],
@@ -84,6 +84,10 @@
       "types": "./ray-elements.d.ts",
       "default": "./components/input/input.js"
     },
+    "./mode-input": {
+      "types": "./ray-elements.d.ts",
+      "default": "./components/mode-input/mode-input.js"
+    },
     "./number-input": {
       "types": "./ray-elements.d.ts",
       "default": "./components/number-input/number-input.js"
@@ -131,6 +135,10 @@
     "./breadcrumbs": {
       "types": "./ray-elements.d.ts",
       "default": "./components/breadcrumbs/breadcrumbs.js"
+    },
+    "./doc-tabs": {
+      "types": "./ray-elements.d.ts",
+      "default": "./components/doc-tabs/doc-tabs.js"
     },
     "./nav-link": {
       "types": "./ray-elements.d.ts",

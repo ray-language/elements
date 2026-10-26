@@ -4,6 +4,8 @@
 import { css, define } from "../../core/core.js";
 import { sizeStyles, radiusStyles } from "../../core/styles.js";
 import { FieldControl, fieldStyles, boxStyles, fieldTemplate } from "../../core/form.js";
+import { syncHighlight, textLayerStyles } from "../../core/textlayer.js";
+import { syncComplete, completeStyles } from "../../core/complete.js";
 
 const styles = css`
   .control[type="search"]::-webkit-search-cancel-button { cursor: pointer; }
@@ -23,8 +25,11 @@ export class RayInput extends FieldControl {
     placeholder: { type: String },
     readonly: { type: Boolean, reflect: true },
     autofocus: { type: Boolean },
+    highlight: { attribute: false },
+    complete: { attribute: false },
+    suggestionsLabel: { type: String, default: "Suggestions" },
   };
-  static styles = [sizeStyles, radiusStyles, fieldStyles, boxStyles, styles];
+  static styles = [sizeStyles, radiusStyles, fieldStyles, boxStyles, textLayerStyles, completeStyles, styles];
   static template = fieldTemplate(`<input id="control" class="control" part="input">`);
 
   static get observedAttributes() {
@@ -64,6 +69,13 @@ export class RayInput extends FieldControl {
     c.readOnly = Boolean(this.readonly);
     this.syncField();
     this._commit();
+    syncHighlight(this);
+    syncComplete(this);
+  }
+
+  /** Runs `highlight` again (what it marks changed, not the text). */
+  refreshHighlight() {
+    syncHighlight(this);
   }
 
   _commit() {
