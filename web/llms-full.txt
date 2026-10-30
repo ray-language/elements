@@ -1,6 +1,6 @@
 # ray-elements
 
-> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.9.0.
+> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.10.0.
 
 ray-elements is a design system of standard web components (custom elements
 with Shadow DOM, no dependencies): `<ray-button>`, `<ray-input>`,
@@ -935,6 +935,9 @@ Parts (`::part()`):
 - `error`: The error message.
 - `suggestions`: The suggestion list (a listbox in the top layer).
 - `suggestion`: Each suggestion ([aria-selected] when active).
+- `suggestion-label`: A suggestion's label (in the mono font).
+- `suggestion-detail`: A suggestion's detail.
+- `suggestion-description`: A suggestion's description, under its label (in the interface font).
 - `highlight`: Each marked range (also highlight-<kind> for a range with a kind).
 - `text-layer`: The layer behind the text that holds the marks.
 
@@ -1486,6 +1489,9 @@ Parts (`::part()`):
 - `wrapper`: The box.
 - `suggestions`: The suggestion list (a listbox in the top layer).
 - `suggestion`: Each suggestion ([aria-selected] when active).
+- `suggestion-label`: A suggestion's label (in the mono font).
+- `suggestion-detail`: A suggestion's detail.
+- `suggestion-description`: A suggestion's description, under its label (in the interface font).
 - `highlight`: Each marked range (also highlight-<kind> for a range with a kind).
 - `text-layer`: The layer behind the text that holds the marks.
 
