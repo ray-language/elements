@@ -3196,7 +3196,7 @@
           "name": "RayDatePicker",
           "tagName": "ray-date-picker",
           "customElement": true,
-          "description": "Values are ISO dates (\"2026-10-06\"), submitted as such. ArrowDown on the field opens the calendar; Escape closes it.",
+          "description": "Values are ISO dates (\"2026-10-06\"), submitted as such. ArrowDown on the field opens the calendar; Escape closes it. On a touch screen the trigger opens the system's picker instead (native).",
           "superclass": {
             "name": "FieldControl"
           },
@@ -3274,6 +3274,15 @@
               },
               "description": "The calendar dropdown is shown.",
               "fieldName": "open"
+            },
+            {
+              "name": "native",
+              "type": {
+                "text": "\"auto\" | \"always\" | \"never\""
+              },
+              "description": "Which picker the trigger opens: the system's (the native date input's, the usual one on a phone) or the calendar dropdown. auto: the system's on a touch screen (pointer: coarse), else the calendar. A date picked in the system's picker is the value like one picked in the calendar.",
+              "fieldName": "native",
+              "default": "auto"
             },
             {
               "name": "name",
@@ -3451,6 +3460,17 @@
               "description": "The calendar dropdown is shown.",
               "attribute": "open",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "native",
+              "type": {
+                "text": "\"auto\" | \"always\" | \"never\""
+              },
+              "description": "Which picker the trigger opens: the system's (the native date input's, the usual one on a phone) or the calendar dropdown. auto: the system's on a touch screen (pointer: coarse), else the calendar. A date picked in the system's picker is the value like one picked in the calendar.",
+              "attribute": "native",
+              "reflects": true,
+              "default": "auto"
             },
             {
               "kind": "field",
@@ -3747,6 +3767,19 @@
               "default": "sm"
             },
             {
+              "kind": "field",
+              "name": "dayState",
+              "type": {
+                "text": "((date: string) => string | null | undefined) | null"
+              },
+              "description": "Marks days: called with each day's ISO date on every render, it returns a state name (letters, digits, - and _) or nothing. The day button gets data-state and the part day-<state>, so ::part(day-taken) (or ::part(day-missed)::after for a dot) styles it from outside. Call refresh() when what it marks changed but the month did not."
+            },
+            {
+              "kind": "method",
+              "name": "refresh",
+              "description": "Renders the month again: when what dayState marks changed but the text did not."
+            },
+            {
               "kind": "method",
               "name": "focusDay",
               "description": "Focuses the day the keyboard is on (the selected day, else today)."
@@ -3786,7 +3819,7 @@
             },
             {
               "name": "day",
-              "description": "Each day button ([aria-selected], [aria-current=date], [aria-disabled], [data-outside])."
+              "description": "Each day button (data-date=\"YYYY-MM-DD\", [data-selected], [aria-current=date], [aria-disabled], [data-outside], and with dayState data-state plus the part day-<state>)."
             }
           ]
         }
@@ -4377,9 +4410,9 @@
             {
               "name": "type",
               "type": {
-                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\""
+                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\" | \"time\" | \"date\" | \"datetime-local\""
               },
-              "description": "Input type.",
+              "description": "Input type. time, date and datetime-local show the browser's picker (the native one on phones); value is what the input gives: \"HH:MM\", \"YYYY-MM-DD\", \"YYYY-MM-DDTHH:MM\".",
               "fieldName": "type",
               "default": "text"
             },
@@ -4584,9 +4617,9 @@
               "kind": "field",
               "name": "type",
               "type": {
-                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\""
+                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\" | \"time\" | \"date\" | \"datetime-local\""
               },
-              "description": "Input type.",
+              "description": "Input type. time, date and datetime-local show the browser's picker (the native one on phones); value is what the input gives: \"HH:MM\", \"YYYY-MM-DD\", \"YYYY-MM-DDTHH:MM\".",
               "attribute": "type",
               "reflects": true,
               "default": "text"
@@ -4935,9 +4968,9 @@
             {
               "name": "type",
               "type": {
-                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\""
+                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\" | \"time\" | \"date\" | \"datetime-local\""
               },
-              "description": "Input type.",
+              "description": "Input type. time, date and datetime-local show the browser's picker (the native one on phones); value is what the input gives: \"HH:MM\", \"YYYY-MM-DD\", \"YYYY-MM-DDTHH:MM\".",
               "fieldName": "type",
               "default": "text"
             },
@@ -5125,9 +5158,9 @@
               "kind": "field",
               "name": "type",
               "type": {
-                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\""
+                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\" | \"time\" | \"date\" | \"datetime-local\""
               },
-              "description": "Input type.",
+              "description": "Input type. time, date and datetime-local show the browser's picker (the native one on phones); value is what the input gives: \"HH:MM\", \"YYYY-MM-DD\", \"YYYY-MM-DDTHH:MM\".",
               "attribute": "type",
               "reflects": true,
               "default": "text"
@@ -5985,9 +6018,9 @@
             {
               "name": "type",
               "type": {
-                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\""
+                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\" | \"time\" | \"date\" | \"datetime-local\""
               },
-              "description": "Input type.",
+              "description": "Input type. time, date and datetime-local show the browser's picker (the native one on phones); value is what the input gives: \"HH:MM\", \"YYYY-MM-DD\", \"YYYY-MM-DDTHH:MM\".",
               "fieldName": "type",
               "default": "text"
             },
@@ -6147,9 +6180,9 @@
               "kind": "field",
               "name": "type",
               "type": {
-                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\""
+                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\" | \"time\" | \"date\" | \"datetime-local\""
               },
-              "description": "Input type.",
+              "description": "Input type. time, date and datetime-local show the browser's picker (the native one on phones); value is what the input gives: \"HH:MM\", \"YYYY-MM-DD\", \"YYYY-MM-DDTHH:MM\".",
               "attribute": "type",
               "reflects": true,
               "default": "text"
@@ -6429,9 +6462,9 @@
             {
               "name": "type",
               "type": {
-                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\""
+                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\" | \"time\" | \"date\" | \"datetime-local\""
               },
-              "description": "Input type.",
+              "description": "Input type. time, date and datetime-local show the browser's picker (the native one on phones); value is what the input gives: \"HH:MM\", \"YYYY-MM-DD\", \"YYYY-MM-DDTHH:MM\".",
               "fieldName": "type",
               "default": "text"
             },
@@ -6601,9 +6634,9 @@
               "kind": "field",
               "name": "type",
               "type": {
-                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\""
+                "text": "\"text\" | \"email\" | \"password\" | \"search\" | \"number\" | \"url\" | \"tel\" | \"time\" | \"date\" | \"datetime-local\""
               },
-              "description": "Input type.",
+              "description": "Input type. time, date and datetime-local show the browser's picker (the native one on phones); value is what the input gives: \"HH:MM\", \"YYYY-MM-DD\", \"YYYY-MM-DDTHH:MM\".",
               "attribute": "type",
               "reflects": true,
               "default": "text"
@@ -13190,9 +13223,9 @@
             {
               "name": "size",
               "type": {
-                "text": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"full\" | (string & {})"
+                "text": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"full\" | \"content\" | (string & {})"
               },
-              "description": "Width (left/right) or height (top/bottom): xs…xl, full, or any CSS length.",
+              "description": "Width (left/right) or height (top/bottom): xs…xl, full, content (as big as what it holds, up to the viewport: a bottom sheet) or any CSS length.",
               "fieldName": "size",
               "default": "md"
             },
@@ -13283,9 +13316,9 @@
               "kind": "field",
               "name": "size",
               "type": {
-                "text": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"full\" | (string & {})"
+                "text": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"full\" | \"content\" | (string & {})"
               },
-              "description": "Width (left/right) or height (top/bottom): xs…xl, full, or any CSS length.",
+              "description": "Width (left/right) or height (top/bottom): xs…xl, full, content (as big as what it holds, up to the viewport: a bottom sheet) or any CSS length.",
               "attribute": "size",
               "reflects": true,
               "default": "md"

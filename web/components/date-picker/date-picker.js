@@ -32,6 +32,13 @@ function parse(iso) {
 }
 
 /** A UTC Date -> "2026-10-06". */
+/** A dayState() result as a part token, or "" (letters, digits, - and _). */
+function stateToken(v) {
+  if (v === null || v === undefined || v === false || v === "") return "";
+  const s = String(v).trim();
+  return /^[A-Za-z][\w-]*$/.test(s) ? s : "";
+}
+
 function iso(d) {
   return d.toISOString().slice(0, 10);
 }
@@ -141,6 +148,7 @@ export class RayCalendar extends RayElement {
     locale: { type: String },
     firstDay: { type: Number },
     size: { type: String, reflect: true, default: "sm" },
+    dayState: { attribute: false },
   };
   static styles = [sizeStyles, calendarStyles];
   static template = `
@@ -153,6 +161,11 @@ export class RayCalendar extends RayElement {
 
   /** The day the keyboard focus is on (roving tabindex). */
   #focus = null;
+
+  /** Renders the month again (what dayState marks changed). */
+  refresh() {
+    this._render();
+  }
 
   constructor() {
     super();
@@ -228,6 +241,7 @@ export class RayCalendar extends RayElement {
     const selected = this.value && parse(this.value) ? this.value : "";
     const now = iso(today());
     const focusIso = iso(focus);
+    const state = typeof this.dayState === "function" ? this.dayState : null;
     const body = this.$("tbody");
     body.replaceChildren();
     for (let w = 0; w < 6; w++) {
@@ -251,6 +265,13 @@ export class RayCalendar extends RayElement {
         td.setAttribute("aria-selected", String(sel));
         b.toggleAttribute("data-selected", sel);
         if (this._disabled(day)) b.setAttribute("aria-disabled", "true");
+        // An app's mark on the day (adherence, events…): data-state and a
+        // part token, day-<state>, for ::part(day-<state>) from outside.
+        const s = state ? stateToken(state(id)) : "";
+        if (s) {
+          b.dataset.state = s;
+          b.setAttribute("part", `day day-${s}`);
+        }
         td.append(b);
         tr.append(td);
         day = addDays(day, 1);
@@ -379,6 +400,7 @@ export class RayDatePicker extends FieldControl {
     firstDay: { type: Number },
     clearable: { type: Boolean, reflect: true },
     open: { type: Boolean, reflect: true },
+    native: { type: String, reflect: true, default: "auto" },
   };
   static styles = [sizeStyles, radiusStyles, fieldStyles, boxStyles, pickerStyles];
   static template = fieldTemplate(
@@ -425,6 +447,17 @@ export class RayDatePicker extends FieldControl {
       this.open = false;
       this.trigger.focus();
     });
+    // A date picked in the native control (the system's picker on a phone,
+    // reached through the trigger with native, or by the keyboard's form
+    // navigation): the model follows it, like a calendar pick.
+    this.control.addEventListener("input", (e) => {
+      e.stopPropagation();
+      this._picked("input");
+    });
+    this.control.addEventListener("change", (e) => {
+      e.stopPropagation();
+      this._picked("change");
+    });
     this.panel.addEventListener("toggle", (e) => this._onToggle(e.newState === "open"));
     this._default = this.getAttribute("value") ?? "";
   }
@@ -452,10 +485,42 @@ export class RayDatePicker extends FieldControl {
     cal.locale = this.locale;
     cal.firstDay = this.firstDay;
     cal.size = this.size === "xs" ? "xs" : this.size === "lg" || this.size === "xl" ? "md" : "sm";
+    // Out of the focus order unless it is the picker: on a phone, a form's
+    // previous/next keys would otherwise land on it beside the calendar.
+    c.inert = !this._useNative();
     this.syncField();
     this._commit();
     this._paint();
     if (changed.has("open")) this._setOpen(Boolean(this.open));
+  }
+
+  /** Whether the trigger opens the system's picker instead of the calendar. */
+  _useNative() {
+    if (this.native === "always") return true;
+    if (this.native === "never") return false;
+    return typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
+  }
+
+  /** Opens the native control's picker (the trigger, with native). */
+  _openNative() {
+    const c = this.control;
+    try {
+      c.showPicker();
+    } catch {
+      // No user activation or no showPicker(): focusing it opens the picker on a phone.
+      c.focus();
+      c.click();
+    }
+  }
+
+  // The native control changed on its own: sync the model and report it.
+  _picked(type) {
+    const v = this.control.value;
+    if (this.value !== v) this.commitProperty("value", v);
+    this._commit();
+    this._paint();
+    if (this.open) this.open = false;
+    this.dispatchEvent(new Event(type, { bubbles: true, composed: type === "input" }));
   }
 
   /** Label, description, error and ARIA go to the button the user operates. */
@@ -512,9 +577,13 @@ export class RayDatePicker extends FieldControl {
     this.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
-  /** Opens or closes the calendar. */
+  /** Opens or closes the calendar (with native, opens the system's picker). */
   toggle(force) {
     if (this.trigger.disabled) return;
+    if (this._useNative() && force !== false) {
+      this._openNative();
+      return;
+    }
     this.open = force ?? !this.open;
   }
 
