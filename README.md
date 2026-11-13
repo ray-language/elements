@@ -7,11 +7,11 @@
 >
 > ```toml
 > [dependencies]
-> elements = "^0.17.1"
+> elements = "^0.18.0"
 > ```
 >
 > Without an index, the direct git dependency:
-> `elements = "git+https://github.com/ray-language/elements@v0.17.1"`.
+> `elements = "git+https://github.com/ray-language/elements@v0.18.0"`.
 
 
 [ray-elements](https://github.com/ray-language/ray-elements) for raylang apps: the design
@@ -34,7 +34,7 @@ or, pinning the tag without the index:
 
 ```toml
 [dependencies]
-elements = "git+https://github.com/ray-language/elements@v0.17.1"
+elements = "git+https://github.com/ray-language/elements@v0.18.0"
 ```
 
 ## Use

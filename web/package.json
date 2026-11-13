@@ -1,6 +1,6 @@
 {
   "name": "@raylang/elements",
-  "version": "0.17.1",
+  "version": "0.18.0",
   "description": "Web components for any app, with raylang extras (shadcn/ui + Mantine inspired)",
   "license": "Apache-2.0",
   "keywords": ["web-components", "custom-elements", "design-system", "ui", "raylang"],
@@ -127,6 +127,10 @@
     "./switch": {
       "types": "./ray-elements.d.ts",
       "default": "./components/switch/switch.js"
+    },
+    "./tags-input": {
+      "types": "./ray-elements.d.ts",
+      "default": "./components/tags-input/tags-input.js"
     },
     "./textarea": {
       "types": "./ray-elements.d.ts",
