@@ -1,6 +1,6 @@
 {
   "name": "@raylang/elements",
-  "version": "0.19.1",
+  "version": "0.20.0",
   "description": "Web components for any app, with raylang extras (shadcn/ui + Mantine inspired)",
   "license": "Apache-2.0",
   "keywords": ["web-components", "custom-elements", "design-system", "ui", "raylang"],
@@ -35,6 +35,10 @@
     "./check": {
       "types": "./check/check.d.ts",
       "default": "./check/check.js"
+    },
+    "./strings/*": {
+      "types": "./strings/strings.d.ts",
+      "default": "./strings/*.js"
     },
     "./button": {
       "types": "./ray-elements.d.ts",
