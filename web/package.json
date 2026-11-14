@@ -1,6 +1,6 @@
 {
   "name": "@raylang/elements",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "Web components for any app, with raylang extras (shadcn/ui + Mantine inspired)",
   "license": "Apache-2.0",
   "keywords": ["web-components", "custom-elements", "design-system", "ui", "raylang"],
@@ -55,6 +55,10 @@
     "./toggle-group": {
       "types": "./ray-elements.d.ts",
       "default": "./components/toggle-group/toggle-group.js"
+    },
+    "./avatar-picker": {
+      "types": "./ray-elements.d.ts",
+      "default": "./components/avatar-picker/avatar-picker.js"
     },
     "./checkbox": {
       "types": "./ray-elements.d.ts",
