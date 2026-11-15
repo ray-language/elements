@@ -1,6 +1,6 @@
 {
   "name": "@raylang/elements",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "description": "Web components for any app, with raylang extras (shadcn/ui + Mantine inspired)",
   "license": "Apache-2.0",
   "keywords": ["web-components", "custom-elements", "design-system", "ui", "raylang"],
@@ -99,6 +99,10 @@
     "./input": {
       "types": "./ray-elements.d.ts",
       "default": "./components/input/input.js"
+    },
+    "./knob": {
+      "types": "./ray-elements.d.ts",
+      "default": "./components/knob/knob.js"
     },
     "./mode-input": {
       "types": "./ray-elements.d.ts",
