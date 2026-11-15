@@ -1,6 +1,6 @@
 {
   "name": "@raylang/elements",
-  "version": "0.20.1",
+  "version": "0.21.0",
   "description": "Web components for any app, with raylang extras (shadcn/ui + Mantine inspired)",
   "license": "Apache-2.0",
   "keywords": ["web-components", "custom-elements", "design-system", "ui", "raylang"],
@@ -243,6 +243,10 @@
     "./kbd": {
       "types": "./ray-elements.d.ts",
       "default": "./components/kbd/kbd.js"
+    },
+    "./meter": {
+      "types": "./ray-elements.d.ts",
+      "default": "./components/meter/meter.js"
     },
     "./stat": {
       "types": "./ray-elements.d.ts",
