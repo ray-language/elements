@@ -1,6 +1,6 @@
 # ray-elements
 
-> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.24.0.
+> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.25.0.
 
 ray-elements is a design system of standard web components (custom elements
 with Shadow DOM, no dependencies): `<ray-button>`, `<ray-input>`,
@@ -296,6 +296,14 @@ what it reports; `--format json` gives the diagnostics as JSON.
 Extend `RayElement`, `FormControl`, `FieldControl` or `Floating` (or any
 component class) from `@raylang/elements/core`; see the Extending guide.
 Members whose name starts with `_` are internal.
+
+## Upgrading
+
+`CHANGELOG.md` in the package (`node_modules/@raylang/elements/CHANGELOG.md`,
+or the raylang package's `CHANGELOG.md`) lists each version's additions,
+changes and fixes; an entry that changes how an untouched page looks starts
+with **Looks different:**. Read the versions between yours and the new one
+before upgrading.
 
 ## Components
 
