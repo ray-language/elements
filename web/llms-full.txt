@@ -1,6 +1,6 @@
 # ray-elements
 
-> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.27.1.
+> Web components (custom elements, Shadow DOM, no dependencies) for any web app: plain HTML, React, Vue or a raylang app. npm: `@raylang/elements`, `@raylang/react`, `@raylang/vue`; raylang: the `elements` package. This file describes version 0.27.2.
 
 ray-elements is a design system of standard web components (custom elements
 with Shadow DOM, no dependencies): `<ray-button>`, `<ray-input>`,
@@ -3596,7 +3596,7 @@ Methods and properties:
 Exports (from `@raylang/elements/notification` and `@raylang/elements`):
 
 - `function notify(options?: NotifyOptions): string`: Shows a notification; returns its id.
-- `function updateNotification(id: string, options?: NotifyOptions): boolean`: Changes a shown notification and restarts its auto-close.
+- `function updateNotification(id: string, options?: NotifyOptions): boolean`: Changes a shown notification and restarts its auto-close. Without autoClose it keeps the one it was shown with (autoClose: false stays).
 - `function hideNotification(id: string): boolean`: Removes a notification.
 - `function clearNotifications(): void`: Removes every notification.
 - `function statusIcon(color: string): string`: The status icon a color gets: circle-check, circle-x, alert-triangle or info.
